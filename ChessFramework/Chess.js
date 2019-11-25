@@ -2,10 +2,10 @@ var move = 0;
 var killList = [];
 let board = {
     variables: {
-        initBoard: [[0,0,0,0,0,0,0,0], 
+        initBoard: [[0,0,0,0,0,7,0,0], 
+                    [0,0,0,0,0,0,4,0],
                     [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,11,0,0,0],
+                    [0,0,0,0,3,0,0,0],
                     [0,0,0,0,0,0,0,0],
                     [0,0,0,0,0,0,0,0],
                     [0,0,0,0,0,0,0,0],
@@ -17,11 +17,7 @@ let board = {
             for(var i = 0;i<board.variables.initBoard.length;i++){
                 for(var j = 0;j<board.variables.initBoard[i].length;j++){
                     if(board.variables.initBoard[i][j] != 0){
-                        switch(board.variables.initBoard[i][j]){
-                            case 11:
-                                $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/11.png'></img>");
-                                break;
-                        }
+                        $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/"+board.variables.initBoard[i][j]+".png'></img>");
                     }
                 }
             }
@@ -40,9 +36,330 @@ let board = {
                 return -1;
             }
         },
+        //all piece logic for positions
         getValidPositions: function(piece,posX,posY){
             var returnValues = [];
             switch(piece){
+                case 1:
+                    var i =posX+1,j=posY+1;
+                    while(i<8 && j<8){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i++;
+                        j++;
+                    }
+                    var i =posX+1,j=posY-1;
+                    while(i<8 && j>=0){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i++;
+                        j--;
+                    }
+                    var i =posX-1,j=posY-1;
+                    while(i>=0 && j>=0){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i--;
+                        j--;
+                    }
+                    var i =posX-1,j=posY+1;
+                    while(i>=0 && j<8){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i--;
+                        j++;
+                    }
+                    return returnValues;
+                    break;
+                case 3:
+                    //horse movement is a thing of beauty
+                    var m=2;
+                    var n=1;
+                    for(var k=0;k<8;k++){
+                        if(k != 4){
+                            if(k%2==0){
+                                m *= -1;
+                            }else{
+                                n *= -1;
+                            }
+                        }else{
+                            n=2;
+                            m=1;
+                        }
+                        if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
+                            if(board.variables.initBoard[posX+m][posY+n] == 0 || board.variables.initBoard[posX+m][posY+n] > 6){
+                                returnValues.push([posX+m,posY+n]);
+                            }
+                        }
+                    }
+                    return returnValues;
+                    break;
+                case 4:
+                    if(board.variables.initBoard[posX-1][posY] == 0){
+                        returnValues.push([posX-1,posY]);
+                    }
+                    if(board.variables.initBoard[posX-1][posY+1] > 6){
+                        returnValues.push([posX-1,posY+1]);
+                    }
+                    if(board.variables.initBoard[posX-1][posY-1] > 6){
+                        returnValues.push([posX-1,posY-1]);
+                    }
+                    return returnValues;
+                    break;
+                case 5:
+                    //also add functionality for taking
+                    for(var i=posY+1;i<8;i++){
+                        if(board.variables.initBoard[posX][i] == 0){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(board.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posY-1;i>=0;i--){
+                        if(board.variables.initBoard[posX][i] == 0){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(board.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posX+1;i<8;i++){
+                        if(board.variables.initBoard[i][posY] == 0){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(initBoard[i][posY] < 7){
+                                returnValues.push([i,posY]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posX-1;i>=0;i--){
+                        if(board.variables.initBoard[i][posY] == 0){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(board.variables.initBoard[i][posY] > 6){
+                                returnValues.push([i,posY]);
+                            }
+                            break;
+                        }
+                    }
+                    var i =posX+1,j=posY+1;
+                    while(i<8 && j<8){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i++;
+                        j++;
+                    }
+                    var i =posX+1,j=posY-1;
+                    while(i<8 && j>=0){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i++;
+                        j--;
+                    }
+                    var i =posX-1,j=posY-1;
+                    while(i>=0 && j>=0){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i--;
+                        j--;
+                    }
+                    var i =posX-1,j=posY+1;
+                    while(i>=0 && j<8){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i--;
+                        j++;
+                    }
+                    return returnValues;
+                break;
+                case 6:
+                    //also add functionality for taking
+                    for(var i=posY+1;i<8;i++){
+                        if(board.variables.initBoard[posX][i] == 0){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(board.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posY-1;i>=0;i--){
+                        if(board.variables.initBoard[posX][i] == 0){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(board.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posX+1;i<8;i++){
+                        if(board.variables.initBoard[i][posY] == 0){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(initBoard[i][posY] < 7){
+                                returnValues.push([i,posY]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posX-1;i>=0;i--){
+                        if(board.variables.initBoard[i][posY] == 0){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(board.variables.initBoard[i][posY] > 6){
+                                returnValues.push([i,posY]);
+                            }
+                            break;
+                        }
+                    }
+                    return returnValues;
+                    break;
+                case 7:
+                    var i =posX+1,j=posY+1;
+                    while(i<8 && j<8){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i++;
+                        j++;
+                    }
+                    var i =posX+1,j=posY-1;
+                    while(i<8 && j>=0){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i++;
+                        j--;
+                    }
+                    var i =posX-1,j=posY-1;
+                    while(i>=0 && j>=0){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i--;
+                        j--;
+                    }
+                    var i =posX-1,j=posY+1;
+                    while(i>=0 && j<8){
+                        if(board.variables.initBoard[i][j] == 0){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(board.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                            break;
+                        }
+                        i--;
+                        j++;
+                    }
+                    return returnValues;
+                    break;
+                case 9:
+                        //horse movement is a thing of beauty
+                        var m=2;
+                        var n=1;
+                        for(var k=0;k<8;k++){
+                            if(k != 4){
+                                if(k%2==0){
+                                    m *= -1;
+                                }else{
+                                    n *= -1;
+                                }
+                            }else{
+                                n=2;
+                                m=1;
+                            }
+                            if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
+                                if(board.variables.initBoard[posX+m][posY+n] == 0 || board.variables.initBoard[posX+m][posY+n] < 7){
+                                    returnValues.push([posX+m,posY+n]);
+                                }
+                            }
+                        }
+                        return returnValues;
+                        break;
+                case 10:
+                    if(board.variables.initBoard[posX+1][posY] == 0){
+                        returnValues.push([posX+1,posY]);
+                    }
+                    if(board.variables.initBoard[posX+1][posY+1] < 7){
+                        returnValues.push([posX+1,posY+1]);
+                    }
+                    if(board.variables.initBoard[posX+1][posY-1] < 7){
+                        returnValues.push([posX+1,posY-1]);
+                    }
+                    return returnValues;
+                    break;
                 case 11:
                     //also add functionality for taking
                     for(var i=posY+1;i<8;i++){
@@ -138,8 +455,51 @@ let board = {
                         j++;
                     }
                     return returnValues;
+                break;
+                case 12:
+                    //also add functionality for taking
+                    for(var i=posY+1;i<8;i++){
+                        if(board.variables.initBoard[posX][i] == 0){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(board.variables.initBoard[posX][i] < 7){
+                                returnValues.push([posX,i]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posY-1;i>=0;i--){
+                        if(board.variables.initBoard[posX][i] == 0){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(board.variables.initBoard[posX][i] < 7){
+                                returnValues.push([posX,i]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posX+1;i<8;i++){
+                        if(board.variables.initBoard[i][posY] == 0){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(initBoard[i][posY] < 7){
+                                returnValues.push([i,posY]);
+                            }
+                            break;
+                        }
+                    }
+                    for(var i=posX-1;i>=0;i--){
+                        if(board.variables.initBoard[i][posY] == 0){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(board.variables.initBoard[i][posY] < 7){
+                                returnValues.push([i,posY]);
+                            }
+                            break;
+                        }
+                    }
+                    return returnValues;
                     break;
-
             }
         }
     }
@@ -187,6 +547,7 @@ $(document).mousedown(function(event){
     for(var i=0;i<allPositions.length;i++){
         $('#'+(allPositions[i][0]+1)+'_'+(allPositions[i][1]+1)).addClass("highlight");
     }
+    $('#'+(coY+1)+'_'+(coX+1)).addClass("highlight");
 
     //saving insides of the div
     $('#selector').css("display","block");
@@ -238,6 +599,21 @@ $(document).mousedown(function(event){
 
         move++;
         $(mouseToCoordinates(currEvent.pageX,currEvent.pageY)).html(savSelected);
+
+        //automatic promotion to queen
+        var prom = false;
+        if((relY == 7 && board.variables.initBoard[relY][relX] == 10)){
+            prom =true;
+            board.variables.initBoard[relY][relX] = 10;
+        }
+        if((relY == 0 && board.variables.initBoard[relY][relX] == 4)){
+            prom = true;
+            board.variables.initBoard[relY][relX] = 5;
+        }
+        if(prom){
+            board.methods.intializeBoard();
+        }
+
     }else{
         board.methods.intializeBoard();
     }
@@ -254,6 +630,7 @@ $(document).mousedown(function(event){
     for(var i=0;i<allPositions.length;i++){
         $('#'+(allPositions[i][0]+1)+'_'+(allPositions[i][1]+1)).removeClass("highlight");
     }
+    $('#'+(coY+1)+'_'+(coX+1)).removeClass("highlight");
     allPositions = [];
     coX = -1;
     coY = -1;
