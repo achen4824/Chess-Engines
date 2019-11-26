@@ -2,14 +2,15 @@ var move = 0;
 var killList = [];
 let board = {
     variables: {
-        initBoard: [[0,0,0,0,0,7,0,0], 
-                    [0,0,0,0,0,0,4,0],
-                    [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,3,0,0,0],
-                    [0,0,0,0,0,0,0,0],
+
+        initBoard: [[12,9,7,8,11,7,9,12], 
+                    [10,10,10,10,10,10,10,10],
                     [0,0,0,0,0,0,0,0],
                     [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0]]
+                    [0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0],
+                    [4,4,4,4,4,4,4,4],
+                    [6,3,1,2,5,1,3,6]]
         
     },
     methods: {
@@ -95,6 +96,68 @@ let board = {
                     }
                     return returnValues;
                     break;
+                case 2:
+                   //get possible movement positions 
+                    if(posY+1 < 8){
+                        if(board.variables.initBoard[posX][posY+1] > 6 || board.variables.initBoard[posX][posY+1] == 0){
+                            returnValues.push([posX,posY+1]);
+                        }
+                        if(posX+1<8 && (board.variables.initBoard[posX+1][posY+1] > 6 || board.variables.initBoard[posX+1][posY+1] == 0)){
+                            returnValues.push([posX+1,posY+1]);
+                        }
+                        if(posX-1>=0 && (board.variables.initBoard[posX-1][posY+1] > 6 || board.variables.initBoard[posX-1][posY+1] == 0)){
+                            returnValues.push([posX-1,posY+1]);
+                        }
+                    }
+                    if(posY-1 >= 0){
+                        if(board.variables.initBoard[posX][posY-1] > 6 || board.variables.initBoard[posX][posY-1] == 0){
+                            returnValues.push([posX,posY-1]);
+                        }
+                        if(posX+1<8 && (board.variables.initBoard[posX+1][posY-1] > 6 || board.variables.initBoard[posX+1][posY-1] == 0)){
+                            returnValues.push([posX+1,posY-1]);
+                        }
+                        if(posX-1>=0 && (board.variables.initBoard[posX-1][posY-1] > 6 || board.variables.initBoard[posX-1][posY-1] == 0)){
+                            returnValues.push([posX-1,posY-1]);
+                        }
+                    }
+                    if(posX-1 >=0 && (board.variables.initBoard[posX-1][posY] > 6 || board.variables.initBoard[posX-1][posY] == 0)){
+                        returnValues.push([posX-1,posY]);
+                    }
+                    if(posX+1 < 8 && (board.variables.initBoard[posX+1][posY] > 6 || board.variables.initBoard[posX+1][posY] == 0)){
+                        returnValues.push([posX+1,posY]);
+                    }
+
+                   //find movements into check so many for loops yikes
+                    for(var f =0;f<8;f++){
+                        for(var t=0;t<8;t++){
+                            var temp = board.variables.initBoard[f][t];
+                            if(temp > 6){
+                                var tempPositions;
+                                
+                                //king preventing inf loop king attack area
+                                if(temp !=8){
+                                    tempPositions = board.methods.getValidPositions(temp,f,t);
+                                }else{
+                                    tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
+                                }
+
+                                //pawns special movement attack area
+                                if(temp == 10){
+                                    tempPositions.push([f+1,t+1]);
+                                    tempPositions.push([f+1,t-1]);
+                                }
+                                for(var e=0;e<tempPositions.length;e++){
+                                    for(var q=0;q<returnValues.length;q++){
+                                        if(tempPositions[e][0] == returnValues[q][0] && tempPositions[e][1] == returnValues[q][1]){
+                                            returnValues.splice(q,1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return returnValues;
+                    break;
                 case 3:
                     //horse movement is a thing of beauty
                     var m=2;
@@ -156,7 +219,7 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(initBoard[i][posY] < 7){
+                            if(board.variables.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                             break;
@@ -252,7 +315,7 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(initBoard[i][posY] < 7){
+                            if(board.variables.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                             break;
@@ -325,6 +388,81 @@ let board = {
                     }
                     return returnValues;
                     break;
+                case 8:
+                    //get possible movement positions 
+                    if(posY+1 < 8){
+                        if(board.variables.initBoard[posX][posY+1] < 7){
+                            returnValues.push([posX,posY+1]);
+                        }
+                        if(posX+1<8){
+                            if(board.variables.initBoard[posX+1][posY+1] < 7){
+                                returnValues.push([posX+1,posY+1]);
+                            }
+                        }
+                        if(posX-1>=0){
+                            if(board.variables.initBoard[posX-1][posY+1] < 7){
+                                returnValues.push([posX-1,posY+1]);
+                            }
+                        }
+                    }
+                    if(posY-1 >= 0){
+                        if(board.variables.initBoard[posX][posY-1] < 7){
+                            returnValues.push([posX,posY-1]);
+                        }
+                        if(posX+1<8){
+                            if(board.variables.initBoard[posX+1][posY-1] < 7){
+                                returnValues.push([posX+1,posY-1]);
+                            }
+                        }
+                        if(posX-1>=0){
+                            if(board.variables.initBoard[posX-1][posY-1] < 7){
+                                returnValues.push([posX-1,posY-1]);
+                            }
+                        }
+                    }
+                    if(posX-1 >=0){
+                        if(board.variables.initBoard[posX-1][posY] < 7){
+                            returnValues.push([posX-1,posY]);
+                        }
+                    }
+                    if(posX+1 < 8){
+                        if(board.variables.initBoard[posX-1][posY] < 7){
+                            returnValues.push([posX+1,posY]);
+                        }
+                    }
+
+                    //find movements into check so many for loops yikes
+                    for(var f =0;f<8;f++){
+                        for(var t=0;t<8;t++){
+                            var temp = board.variables.initBoard[f][t];
+                            if(temp < 7 && temp > 0){
+                                var tempPositions;
+
+                                //king attack area preventing inf loop
+                                if(temp !=2){
+                                    tempPositions = board.methods.getValidPositions(temp,f,t);
+                                }else{
+                                    tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
+                                }
+
+                                //pawns special movement attack area
+                                if(temp == 4){
+                                    tempPositions.push([f-1,t+1]);
+                                    tempPositions.push([f-1,t-1]);
+                                }
+
+                                for(var e=0;e<tempPositions.length;e++){
+                                    for(var q=0;q<returnValues.length;q++){
+                                        if(tempPositions[e][0] == returnValues[q][0] && tempPositions[e][1] == returnValues[q][1]){
+                                            returnValues.splice(q,1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return returnValues;
+                    break;
                 case 9:
                         //horse movement is a thing of beauty
                         var m=2;
@@ -349,17 +487,17 @@ let board = {
                         return returnValues;
                         break;
                 case 10:
-                    if(board.variables.initBoard[posX+1][posY] == 0){
-                        returnValues.push([posX+1,posY]);
-                    }
-                    if(board.variables.initBoard[posX+1][posY+1] < 7){
-                        returnValues.push([posX+1,posY+1]);
-                    }
-                    if(board.variables.initBoard[posX+1][posY-1] < 7){
-                        returnValues.push([posX+1,posY-1]);
-                    }
-                    return returnValues;
-                    break;
+                        if(board.variables.initBoard[posX+1][posY] == 0){
+                            returnValues.push([posX+1,posY]);
+                        }
+                        if(board.variables.initBoard[posX+1][posY+1] <7 && board.variables.initBoard[posX+1][posY+1] != 0){
+                            returnValues.push([posX+1,posY+1]);
+                        }
+                        if(board.variables.initBoard[posX+1][posY-1] <7 && board.variables.initBoard[posX+1][posY-1] != 0){
+                            returnValues.push([posX+1,posY-1]);
+                        }
+                        return returnValues;
+                        break;
                 case 11:
                     //also add functionality for taking
                     for(var i=posY+1;i<8;i++){
@@ -386,7 +524,7 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(initBoard[i][posY] < 7){
+                            if(board.variables.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                             break;
@@ -482,7 +620,7 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(initBoard[i][posY] < 7){
+                            if(board.variables.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                             break;
