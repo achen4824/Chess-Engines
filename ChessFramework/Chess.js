@@ -1,4 +1,4 @@
-var move = 0;
+
 var killList = [];
 let board = {
     variables: {
@@ -10,7 +10,8 @@ let board = {
                     [0,0,0,0,0,0,0,0],
                     [0,0,0,0,0,0,0,0],
                     [4,4,4,4,4,4,4,4],
-                    [6,3,1,2,5,1,3,6]]
+                    [6,3,1,2,5,1,3,6]],
+        move: 0
         
     },
     methods: {
@@ -39,6 +40,19 @@ let board = {
         },
         //all piece logic for positions
         getValidPositions: function(piece,posX,posY){
+
+            //check for check and mate
+            if(board.variables.move % 2 == 0){
+
+            }
+            
+            //check white or black to move
+            if(board.variables.move % 2 == 0 && piece < 7){
+                return -1;
+            }else if(board.variables.move % 2 == 1 && piece > 6){
+                return -1;
+            }
+
             var returnValues = [];
             switch(piece){
                 case 1:
@@ -190,6 +204,9 @@ let board = {
                     }
                     if(board.variables.initBoard[posX-1][posY-1] > 6){
                         returnValues.push([posX-1,posY-1]);
+                    }
+                    if(posX == 6){
+                        returnValues.push([posX-2,posY]);
                     }
                     return returnValues;
                     break;
@@ -496,6 +513,9 @@ let board = {
                         if(board.variables.initBoard[posX+1][posY-1] <7 && board.variables.initBoard[posX+1][posY-1] != 0){
                             returnValues.push([posX+1,posY-1]);
                         }
+                        if(posX == 1){
+                            returnValues.push([posX+2,posY]);
+                        }
                         return returnValues;
                         break;
                 case 11:
@@ -661,7 +681,6 @@ $(document).mousedown(function(event){
     currentMousePos.x = event.pageX;
     currentMousePos.y = event.pageY;
 
-    var offsetX=0, offsetY=0;
 
     var gameCell = $(mouseToCoordinates(event.pageX,event.pageY))[0];
     if(mouseToCoordinates(event.pageX,event.pageY) == -1){
@@ -676,6 +695,9 @@ $(document).mousedown(function(event){
             return;
         }else{
             allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX);
+            if(allPositions == -1){
+                return;
+            }
         }
     }else{
         return;
@@ -735,14 +757,14 @@ $(document).mousedown(function(event){
         board.variables.initBoard[relY][relX] = board.variables.initBoard[coY][coX];
         board.variables.initBoard[coY][coX] = 0;
 
-        move++;
+        board.variables.move++;
         $(mouseToCoordinates(currEvent.pageX,currEvent.pageY)).html(savSelected);
 
         //automatic promotion to queen
         var prom = false;
         if((relY == 7 && board.variables.initBoard[relY][relX] == 10)){
             prom =true;
-            board.variables.initBoard[relY][relX] = 10;
+            board.variables.initBoard[relY][relX] = 11;
         }
         if((relY == 0 && board.variables.initBoard[relY][relX] == 4)){
             prom = true;
