@@ -873,15 +873,31 @@ $(document).mousedown(function(event){
         return;
     }
 
+    //checking inside the grid
+    if(coX != -1 && coY != -1){
+        if(board.variables.initBoard[coY][coX] == 0){
+            return;
+        }else{
+            allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX,false);
+        }
+    }else{
+        return;
+    }
+
     //check logic
     var attackingPieces = board.methods.checkForCheck();
+    var blockingPieces = [];
     if(attackingPieces.length > 0){
-        var blockingPieces = [];
         //board.variables.initBoard[coX][coY]
         //check if we can block
         console.log("in check");
-        if(attackingPieces.length < 2 || attackingPieces[0][0] == 3 || attackingPieces[0][0] == 9){
-            
+        if(attackingPieces.length < 2 || attackingPieces[0][0] != 3 || attackingPieces[0][0] != 9){
+            for(var e=0;e<allPositions.length;e++){
+                //using vector scalar transformation to check if point is on the line
+                if(((allPositions[e][0]-attackingPieces[0][1])/(allPositions[e][0]-coY)) == ((allPositions[e][1]-attackingPieces[0][2])/(allPositions[e][1]-coX)) && ((allPositions[e][0]-attackingPieces[0][1])/(allPositions[e][0]-coY)) >= 0){
+
+                }
+            }
         }
         if(blockingPieces.length == 0){
             //cant block must move king
@@ -893,15 +909,7 @@ $(document).mousedown(function(event){
         return;
     }
 
-    if(coX != -1 && coY != -1){
-        if(board.variables.initBoard[coY][coX] == 0){
-            return;
-        }else{
-            allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX,false);
-        }
-    }else{
-        return;
-    }
+
     mdown = true;
     //highlight positions
     for(var i=0;i<allPositions.length;i++){
