@@ -38,20 +38,62 @@ let board = {
                 return -1;
             }
         },
-        //all piece logic for positions
-        getValidPositions: function(piece,posX,posY){
-
+        checkForCheck: function(){
+            
+            var allPos = [];
             //check for check and mate
             if(board.variables.move % 2 == 0){
+                var kingpos;
+                for(var i =0;i<8;i++){
+                    for(var j=0;j<8;j++){
+                        var temp = board.variables.initBoard[i][j];
+                        if(temp == 8){
+                            kingpos = [i,j];
+                        }
+                        if(temp != 0 && temp < 7){
+                            allPos = allPos.concat(board.methods.getValidPositions(temp,i,j));
+                        }
+                    }
+                }
+                for(var g=0;g<allPos.length;g++){
+                    //check for check
+                    if(allPos[g][0] == kingpos[0] && allPos[g][1] == kingpos[1]){
+                        if(board.methods.getValidPositions(8,kingpos[0],kingpos[1]).length == 0){
+                            return 2;
+                        }
+                        return 1;
+                    }
+                }
+
+            }else{
+
+                var kingpos;
+                for(var i =0;i<8;i++){
+                    for(var j=0;j<8;j++){
+                        var temp = board.variables.initBoard[i][j];
+                        if(temp == 2){
+                            kingpos = [i,j];
+                        }
+                        if(temp != 0 && temp > 6){
+                            allPos = allPos.concat(board.methods.getValidPositions(temp,i,j));
+                        }
+                    }
+                }
+                for(var g=0;g<allPos.length;g++){
+                    //check for check
+                    if(allPos[g][0] == kingpos[0] && allPos[g][1] == kingpos[1]){
+                        if(board.methods.getValidPositions(2,kingpos[0],kingpos[1]).length == 0){
+                            return 2;
+                        }
+                        return 1;
+                    }
+                }
 
             }
-            
-            //check white or black to move
-            if(board.variables.move % 2 == 0 && piece < 7){
-                return -1;
-            }else if(board.variables.move % 2 == 1 && piece > 6){
-                return -1;
-            }
+            return 0;
+        },
+        //all piece logic for positions
+        getValidPositions: function(piece,posX,posY){
 
             var returnValues = [];
             switch(piece){
@@ -146,7 +188,7 @@ let board = {
                         for(var t=0;t<8;t++){
                             var temp = board.variables.initBoard[f][t];
                             if(temp > 6){
-                                var tempPositions;
+                                var tempPositions = [];
                                 
                                 //king preventing inf loop king attack area
                                 if(temp !=8){
@@ -154,9 +196,9 @@ let board = {
                                 }else{
                                     tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
                                 }
-
                                 //pawns special movement attack area
                                 if(temp == 10){
+                                    tempPositions = [];
                                     tempPositions.push([f+1,t+1]);
                                     tempPositions.push([f+1,t-1]);
                                 }
@@ -205,7 +247,7 @@ let board = {
                     if(board.variables.initBoard[posX-1][posY-1] > 6){
                         returnValues.push([posX-1,posY-1]);
                     }
-                    if(posX == 6){
+                    if(posX == 6 && (board.variables.initBoard[posX-2][posY] == 0) && (board.variables.initBoard[posX-1][posY] == 0)){
                         returnValues.push([posX-2,posY]);
                     }
                     return returnValues;
@@ -443,7 +485,7 @@ let board = {
                         }
                     }
                     if(posX+1 < 8){
-                        if(board.variables.initBoard[posX-1][posY] < 7){
+                        if(board.variables.initBoard[posX+1][posY] < 7){
                             returnValues.push([posX+1,posY]);
                         }
                     }
@@ -453,7 +495,7 @@ let board = {
                         for(var t=0;t<8;t++){
                             var temp = board.variables.initBoard[f][t];
                             if(temp < 7 && temp > 0){
-                                var tempPositions;
+                                var tempPositions = [];
 
                                 //king attack area preventing inf loop
                                 if(temp !=2){
@@ -464,6 +506,7 @@ let board = {
 
                                 //pawns special movement attack area
                                 if(temp == 4){
+                                    tempPositions = [];
                                     tempPositions.push([f-1,t+1]);
                                     tempPositions.push([f-1,t-1]);
                                 }
@@ -513,7 +556,7 @@ let board = {
                         if(board.variables.initBoard[posX+1][posY-1] <7 && board.variables.initBoard[posX+1][posY-1] != 0){
                             returnValues.push([posX+1,posY-1]);
                         }
-                        if(posX == 1){
+                        if(posX == 1 && board.variables.initBoard[posX+2][posY] == 0 &&  (board.variables.initBoard[posX+1][posY] == 0)){
                             returnValues.push([posX+2,posY]);
                         }
                         return returnValues;
@@ -670,11 +713,14 @@ function mouseToCoordinates(mouseX,mouseY){
         return -1;
     }
 }
+
 var allPositions;
 var coX;
 var coY;
 var savSelected;
 var mdown = false;
+
+
 $(document).mousedown(function(event){
      //get mouse position
     var currentMousePos = { x: -1, y: -1 };
@@ -690,14 +736,27 @@ $(document).mousedown(function(event){
     coX = board.methods.getX(currentMousePos.x);
     coY = board.methods.getY(currentMousePos.y);
 
+    //checking before allowing move
+    //check white or black to move
+    if(board.variables.move % 2 == 0 && board.variables.initBoard[coY][coX] < 7 && board.variables.initBoard[coY][coX] !=0 ){
+        return;
+    }else if(board.variables.move % 2 == 1 && board.variables.initBoard[coY][coX] > 6){
+        return;
+    }
+
+    if(board.methods.checkForCheck() > 0 && (board.variables.initBoard[coX][coY] != 8 || board.variables.initBoard[coX][coY] != 2 )){
+        console.log("in check");
+        if(board.methods.checkForCheck()==2){
+            console.log("in checkmate");
+        }
+        return;
+    }
+
     if(coX != -1 && coY != -1){
         if(board.variables.initBoard[coY][coX] == 0){
             return;
         }else{
             allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX);
-            if(allPositions == -1){
-                return;
-            }
         }
     }else{
         return;
