@@ -39,61 +39,62 @@ let board = {
             }
         },
         checkForCheck: function(){
-            
-            var allPos = [];
+            var attackingPieces = [];
             //check for check and mate
             if(board.variables.move % 2 == 0){
                 var kingpos;
+                for(var w=0;w<8;w++){
+                    for(var f=0;f<8;f++){
+                        if(board.variables.initBoard[w][f] == 8){
+                            kingpos = [w,f];
+                        }
+
+                    }
+                }
+
                 for(var i =0;i<8;i++){
                     for(var j=0;j<8;j++){
                         var temp = board.variables.initBoard[i][j];
-                        if(temp == 8){
-                            kingpos = [i,j];
-                        }
                         if(temp != 0 && temp < 7){
-                            allPos = allPos.concat(board.methods.getValidPositions(temp,i,j));
+                            var positions = board.methods.getValidPositions(temp,i,j,false);
+                            for(var t=0;t<positions.length;t++){
+                                if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
+                                    attackingPieces.push([temp,i,j]);
+                                }
+                            }
                         }
-                    }
-                }
-                for(var g=0;g<allPos.length;g++){
-                    //check for check
-                    if(allPos[g][0] == kingpos[0] && allPos[g][1] == kingpos[1]){
-                        if(board.methods.getValidPositions(8,kingpos[0],kingpos[1]).length == 0){
-                            return 2;
-                        }
-                        return 1;
                     }
                 }
 
             }else{
-
                 var kingpos;
+                for(var w=0;w<8;w++){
+                    for(var f=0;f<8;f++){
+                        if(board.variables.initBoard[w][f] == 2){
+                            kingpos = [w,f];
+                        }
+
+                    }
+                }
+
                 for(var i =0;i<8;i++){
                     for(var j=0;j<8;j++){
                         var temp = board.variables.initBoard[i][j];
-                        if(temp == 2){
-                            kingpos = [i,j];
-                        }
                         if(temp != 0 && temp > 6){
-                            allPos = allPos.concat(board.methods.getValidPositions(temp,i,j));
+                            var positions = board.methods.getValidPositions(temp,i,j,false);
+                            for(var t=0;t<positions.length;t++){
+                                if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
+                                    attackingPieces.push([temp,i,j]);
+                                }
+                            }
                         }
                     }
                 }
-                for(var g=0;g<allPos.length;g++){
-                    //check for check
-                    if(allPos[g][0] == kingpos[0] && allPos[g][1] == kingpos[1]){
-                        if(board.methods.getValidPositions(2,kingpos[0],kingpos[1]).length == 0){
-                            return 2;
-                        }
-                        return 1;
-                    }
-                }
-
             }
-            return 0;
+            return attackingPieces;
         },
         //all piece logic for positions
-        getValidPositions: function(piece,posX,posY){
+        getValidPositions: function(piece,posX,posY,attack){
 
             var returnValues = [];
             switch(piece){
@@ -103,8 +104,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -116,8 +121,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -129,8 +138,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -142,8 +155,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -192,7 +209,7 @@ let board = {
                                 
                                 //king preventing inf loop king attack area
                                 if(temp !=8){
-                                    tempPositions = board.methods.getValidPositions(temp,f,t);
+                                    tempPositions = board.methods.getValidPositions(temp,f,t,true);
                                 }else{
                                     tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
                                 }
@@ -258,8 +275,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] > 6){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] > 6){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -268,8 +289,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] > 6){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] > 6){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -278,8 +303,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] < 7){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] > 6){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -288,8 +317,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] > 6){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] > 6){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -299,8 +332,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -312,8 +349,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -325,8 +366,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -338,8 +383,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] > 6){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] > 6){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -354,8 +403,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] > 6){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] > 6){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -364,8 +417,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] > 6){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] > 6){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -374,8 +431,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] < 7){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] > 6){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -384,8 +445,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] > 6){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] > 6){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -398,8 +463,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -411,8 +480,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -424,8 +497,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -437,8 +514,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -499,7 +580,7 @@ let board = {
 
                                 //king attack area preventing inf loop
                                 if(temp !=2){
-                                    tempPositions = board.methods.getValidPositions(temp,f,t);
+                                    tempPositions = board.methods.getValidPositions(temp,f,t,true);
                                 }else{
                                     tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
                                 }
@@ -567,8 +648,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] < 7){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] < 7){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -577,8 +662,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] < 7){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] < 7){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -587,8 +676,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] < 7){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] < 7){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -597,8 +690,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] < 7){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] < 7){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -608,8 +705,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -621,8 +722,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -634,8 +739,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -647,8 +756,12 @@ let board = {
                         if(board.variables.initBoard[i][j] == 0){
                             returnValues.push([i,j]);
                         }else{
-                            if(board.variables.initBoard[i][j] < 7){
+                            if(attack===true){
                                 returnValues.push([i,j]);
+                            }else{
+                                if(board.variables.initBoard[i][j] < 7){
+                                    returnValues.push([i,j]);
+                                }
                             }
                             break;
                         }
@@ -663,8 +776,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] < 7){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] < 7){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -673,8 +790,12 @@ let board = {
                         if(board.variables.initBoard[posX][i] == 0){
                             returnValues.push([posX,i]);
                         }else{
-                            if(board.variables.initBoard[posX][i] < 7){
+                            if(attack===true){
                                 returnValues.push([posX,i]);
+                            }else{
+                                if(board.variables.initBoard[posX][i] < 7){
+                                    returnValues.push([posX,i]);
+                                }
                             }
                             break;
                         }
@@ -683,8 +804,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] < 7){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] < 7){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -693,8 +818,12 @@ let board = {
                         if(board.variables.initBoard[i][posY] == 0){
                             returnValues.push([i,posY]);
                         }else{
-                            if(board.variables.initBoard[i][posY] < 7){
+                            if(attack===true){
                                 returnValues.push([i,posY]);
+                            }else{
+                                if(board.variables.initBoard[i][posY] < 7){
+                                    returnValues.push([i,posY]);
+                                }
                             }
                             break;
                         }
@@ -744,8 +873,20 @@ $(document).mousedown(function(event){
         return;
     }
 
-    if(board.methods.checkForCheck() > 0 && (board.variables.initBoard[coX][coY] != 8 || board.variables.initBoard[coX][coY] != 2 )){
+    //check logic
+    var attackingPieces = board.methods.checkForCheck();
+    if(attackingPieces.length > 0){
+        var blockingPieces = [];
+        //board.variables.initBoard[coX][coY]
+        //check if we can block
         console.log("in check");
+        if(attackingPieces.length < 2 || attackingPieces[0][0] == 3 || attackingPieces[0][0] == 9){
+            
+        }
+        if(blockingPieces.length == 0){
+            //cant block must move king
+
+        }
         if(board.methods.checkForCheck()==2){
             console.log("in checkmate");
         }
@@ -756,7 +897,7 @@ $(document).mousedown(function(event){
         if(board.variables.initBoard[coY][coX] == 0){
             return;
         }else{
-            allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX);
+            allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX,false);
         }
     }else{
         return;
