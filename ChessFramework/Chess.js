@@ -1,5 +1,5 @@
 
-var killList = [];
+
 let board = {
     variables: {
 
@@ -11,7 +11,8 @@ let board = {
                     [0,0,0,0,0,0,0,0],
                     [4,4,4,4,4,4,4,4],
                     [6,3,1,2,5,1,3,6]],
-        move: 0
+        move: 0,
+        killList: []
         
     },
     methods: {
@@ -833,12 +834,31 @@ let board = {
             }
         },
         aiMoveBlack: function(){
-
+            board.variables.move++;
+            var savMoves = [];
+            for(var i = 0;i<8;i++){
+                for(var j = 0;j<8;j++){
+                    if(board.variables.initBoard[i][j]<7 && board.variables.initBoard[i][j] != 0){
+                        var positions = board.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                        for(var g=0;g<positions.length;g++){
+                            var currBoard = board.variables.initBoard;
+                            var tempKillList = board.variables.killList;
+                            if(currBoard[positions[g][0]][positions[g][1]] != 0){
+                                tempKillList.push(currBoard[positions[g][0]][positions[g][1]]);
+                            }
+                            currBoard[positions[g][0]][positions[g][1]] = currBoard[i][j];
+                            currBoard[i][j] = 0;
+                            board.recursiveTreeDescent(currBoard,board.variables.move,tempKillList,2);
+                        }
+                    }
+                }
+            }
         },
-        recursiveTreeDescent: function(currBoard,deadPieces,depth){
-            //check for checkmate
+        recursiveTreeDescent: function(currBoard,move,deadPieces,depth){
+            depth--;
+            //check for checkmate value 1000
             
-            //check end of tree
+            //check end of tree return values of depth
             if(depth == 0){
                 
             }
