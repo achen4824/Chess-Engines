@@ -831,6 +831,17 @@ let board = {
                     return returnValues;
                     break;
             }
+        },
+        aiMoveBlack: function(){
+
+        },
+        recursiveTreeDescent: function(currBoard,deadPieces,depth){
+            //check for checkmate
+            
+            //check end of tree
+            if(depth == 0){
+                
+            }
         }
     }
 }
@@ -886,27 +897,56 @@ $(document).mousedown(function(event){
 
     //check logic
     var attackingPieces = board.methods.checkForCheck();
-    var blockingPieces = [];
+    var blockingPositions = [];
     if(attackingPieces.length > 0){
-        //board.variables.initBoard[coX][coY]
-        //check if we can block
-        console.log("in check");
-        if(attackingPieces.length < 2 || attackingPieces[0][0] != 3 || attackingPieces[0][0] != 9){
-            for(var e=0;e<allPositions.length;e++){
-                //using vector scalar transformation to check if point is on the line
-                if(((allPositions[e][0]-attackingPieces[0][1])/(allPositions[e][0]-coY)) == ((allPositions[e][1]-attackingPieces[0][2])/(allPositions[e][1]-coX)) && ((allPositions[e][0]-attackingPieces[0][1])/(allPositions[e][0]-coY)) >= 0){
+        var pass = false;
+        var kingpos;
+        if(board.variables.move % 2 == 0){
+            for(var w=0;w<8;w++){
+                for(var f=0;f<8;f++){
+                    if(board.variables.initBoard[w][f] == 8){
+                        kingpos = [w,f];
+                    }
+
+                }
+            }
+        }else{
+            for(var w=0;w<8;w++){
+                for(var f=0;f<8;f++){
+                    if(board.variables.initBoard[w][f] == 2){
+                        kingpos = [w,f];
+                    }
 
                 }
             }
         }
-        if(blockingPieces.length == 0){
-            //cant block must move king
 
+        //board.variables.initBoard[coX][coY]
+        //check if we can block
+        console.log("in check");
+        if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
+            for(var e=0;e<allPositions.length;e++){
+                //using vector scalar transformation to check if point is on the line
+                //value will be some positive fraction if it lies between the two points
+                if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
+                    blockingPositions.push([allPositions[e][0],allPositions[e][1]]);
+                    pass = true;
+                }
+            }
         }
-        if(board.methods.checkForCheck()==2){
-            console.log("in checkmate");
+        if(blockingPositions.length == 0){
+            //cant block must move king
+            if(board.variables.initBoard[coY][coX] == 8 || board.variables.initBoard[coY][coX] == 2){
+                if(allPositions.length != 0){
+                    blockingPositions = allPositions;
+                    pass = true;
+                }else{
+                    console.log("king possibly checkmate");
+                }
+            }
         }
-        return;
+        if(pass){allPositions = blockingPositions;}
+        else{return;}
     }
 
 
