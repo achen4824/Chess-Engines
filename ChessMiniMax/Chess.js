@@ -838,7 +838,7 @@ let board = {
 
             //create a temporary board
             var currBoard = board;
-            var savPos = [-10000,-1,[2,3]];
+            var savPos = [-10000,-1,[-1,-1]];
 
             if(currBoard.variables.move % 2  != 0){
                 console.log("Failed");
@@ -848,7 +848,7 @@ let board = {
             //note this code is not symmetric and does not yet work for white to move
 
             //check if in check
-            var attackingPieces = currBoard.checkForCheck();
+            var attackingPieces = currBoard.methods.checkForCheck();
             if(attackingPieces.length  == 0){
 
                 //code for all moves
@@ -969,18 +969,319 @@ let board = {
 
             }
 
-            //log eavluated position for debugging
+            //log evaluated position for debugging
             console.log(savPos);
             //run saved position to the board
         },
         recursiveTreeDescent: function(currBoard,depth){
             depth--;
-            //check for checkmate value 1000
             
+
             //check end of tree return values of depth
             if(depth == 0){
-                
+                var sum = 0;
+                for(var i =0;i<currBoard.variables.killList.length;i++){
+                    switch (currBoard.variables.killList[i]){
+                        case 1:
+                            sum -= 3;
+                            break;
+                        case 2:
+                            console.log("Failed kill list logic");
+                            break;
+                        case 3:
+                            sum -= 3;
+                            break;
+                        case 4:
+                            sum -= 1;
+                            break;
+                        case 5:
+                            sum -= 9;
+                            break;
+                        case 6:
+                            sum -= 5;
+                            break;
+                        case 7:
+                            sum += 3;
+                            break;
+                        case 8:
+                            console.log("failed chess logic");
+                            break;
+                        case 9:
+                            sum += 3;
+                            break;
+                        case 10:
+                            sum += 1;
+                            break;
+                        case 11:
+                            sum += 9;
+                            break;
+                        case 12:
+                            sum += 5;
+                            break;
+
+                    }
+                }
+                return sum;
             }
+
+            //minimize
+            if(currBoard.variables.move % 2 == 0){
+                var savPos = [10000,-1,[-1,-1]];
+                //check if in check
+                var attackingPieces = currBoard.methods.checkForCheck();
+                if(attackingPieces.length  == 0){
+
+                    //code for all moves
+                    for(var i = 0;i<8;i++){
+                        for(var j = 0;j<8;j++){
+                            if(currBoard.variables.initBoard[i][j]>6){
+                                var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                                for(var g=0;g<positions.length;g++){
+
+                                    //prevent modification of local function board enabling reuse for multiple moves.
+                                    var tempBoard = currBoard;
+
+                                    //check for taken pieces
+                                    if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
+                                    }
+
+                                    //complete the move
+                                    tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
+                                    tempBoard.variables.initBoard[i][j] = 0;
+                                    tempBoard.variables.move++;
+
+                                    //evaluate the tree descent value
+                                    var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
+                                    if( evalValue < savPos[0]){
+                                        savPos[0] = evalValue;
+                                        savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                        savPos[2] = [positions[g][0],positions[g][1]];
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else{
+
+                    //in check logic
+                    var kingpos;
+                    var blockingPositions = 0;
+
+                    //get king position
+                    for(var w=0;w<8;w++){
+                        for(var f=0;f<8;f++){
+                            if(currBoard.variables.initBoard[w][f] == 8){
+                                kingpos = [w,f];
+                            }
+
+                        }
+                    }
+
+                    //if it is possible to block the check
+                    if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
+                        //for all black pieces check if they can block
+                        for(var x=0;x<8;x++){
+                            for(var y=0;y<8;y++){
+                                if(currBoard.variables.initBoard[x][y] > 6){
+                                    var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                                    for(var e=0;e<allPositions.length;e++){
+                                        if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
+                                            
+                                            blockingPositions++;
+
+                                            //prevent modification of local function board enabling reuse for multiple moves.
+                                            var tempBoard = currBoard;
+
+                                            //check for taken pieces
+                                            if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
+                                            }
+
+                                            //complete the move
+                                            tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
+                                            tempBoard.variables.initBoard[x][y] = 0;
+                                            tempBoard.variables.move++;
+
+                                            //evaluate the tree descent value
+                                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
+                                            if( evalValue < savPos[0]){
+                                                savPos[0] = evalValue;
+                                                savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                                savPos[2] = [allPositions[e][0],allPositions[e][1]];
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
+                    var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                    if(kingPositions.length == 0 && blockingPositions == 0){
+                        console.log("checkmate");
+                        return -1000;
+                    }else{
+                        for(var e=0;e<kingPositions.length;e++){
+                            //check for taken pieces
+                            if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                            }
+
+                            //complete the move
+                            tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
+                            tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
+                            tempBoard.variables.move++;
+
+                            //evaluate the tree descent value
+                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
+                            if( evalValue > savPos[0]){
+                                savPos[0] = evalValue;
+                                savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                                savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
+                            }
+                        }
+                    }
+
+                }
+            }
+            //maximise 
+            //yuck code duplication
+            else{
+                //check if in check
+                var attackingPieces = currBoard.methods.checkForCheck();
+                var savPos = [-10000,-1,[-1,-1]];
+                if(attackingPieces.length  == 0){
+
+                    //code for all moves
+                    for(var i = 0;i<8;i++){
+                        for(var j = 0;j<8;j++){
+                            if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
+                                var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                                for(var g=0;g<positions.length;g++){
+
+                                    //prevent modification of local function board enabling reuse for multiple moves.
+                                    var tempBoard = currBoard;
+
+                                    //check for taken pieces
+                                    if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
+                                    }
+
+                                    //complete the move
+                                    tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
+                                    tempBoard.variables.initBoard[i][j] = 0;
+                                    tempBoard.variables.move++;
+
+                                    //evaluate the tree descent value
+                                    var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
+                                    if( evalValue > savPos[0]){
+                                        savPos[0] = evalValue;
+                                        savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                        savPos[2] = [positions[g][0],positions[g][1]];
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else{
+
+                    //in check logic
+                    var kingpos;
+                    var blockingPositions = 0;
+
+                    //get king position
+                    for(var w=0;w<8;w++){
+                        for(var f=0;f<8;f++){
+                            if(currBoard.variables.initBoard[w][f] == 2){
+                                kingpos = [w,f];
+                            }
+
+                        }
+                    }
+
+                    //if it is possible to block the check
+                    if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
+                        //for all black pieces check if they can block
+                        for(var x=0;x<8;x++){
+                            for(var y=0;y<8;y++){
+                                if(currBoard.variables.initBoard[x][y] < 7 && currBoard.variables.initBoard[x][y] != 0){
+                                    var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                                    for(var e=0;e<allPositions.length;e++){
+                                        if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
+                                            
+                                            blockingPositions++;
+
+                                            //prevent modification of local function board enabling reuse for multiple moves.
+                                            var tempBoard = currBoard;
+
+                                            //check for taken pieces
+                                            if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
+                                            }
+
+                                            //complete the move
+                                            tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
+                                            tempBoard.variables.initBoard[x][y] = 0;
+                                            tempBoard.variables.move++;
+
+                                            //evaluate the tree descent value
+                                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
+                                            if( evalValue > savPos[0]){
+                                                savPos[0] = evalValue;
+                                                savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                                savPos[2] = [allPositions[e][0],allPositions[e][1]];
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
+                    var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                    if(kingPositions.length == 0 && blockingPositions == 0){
+                        console.log("checkmate");
+                        return -1000;
+                    }else{
+                        for(var e=0;e<kingPositions.length;e++){
+                            //check for taken pieces
+                            if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                            }
+
+                            //complete the move
+                            tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
+                            tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
+                            tempBoard.variables.move++;
+
+                            //evaluate the tree descent value
+                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
+                            if( evalValue > savPos[0]){
+                                savPos[0] = evalValue;
+                                savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                                savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            //check for checkmate value 1000
+            
+            
+
+            
+    
         }
     }
 }
