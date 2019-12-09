@@ -15,224 +15,596 @@ let board = {
         killList: []
         
     },
-    methods: {
-        intializeBoard: function(){
-            for(var i = 0;i<board.variables.initBoard.length;i++){
-                for(var j = 0;j<board.variables.initBoard[i].length;j++){
-                    if(board.variables.initBoard[i][j] != 0){
-                        $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/"+board.variables.initBoard[i][j]+".png'></img>");
-                    }
+    intializeBoard: function(){
+        for(var i = 0;i<this.variables.initBoard.length;i++){
+            for(var j = 0;j<this.variables.initBoard[i].length;j++){
+                if(this.variables.initBoard[i][j] != 0){
+                    $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/"+this.variables.initBoard[i][j]+".png'></img>");
                 }
             }
-        },
-        getX: function(mouseX){
-            if((mouseX-(mouseX%48))/48 < 8){
-                return ((mouseX-(mouseX%48))/48);
-            }else{
-                return -1;
+        }
+    },
+    getX: function(mouseX){
+        if((mouseX-(mouseX%48))/48 < 8){
+            return ((mouseX-(mouseX%48))/48);
+        }else{
+            return -1;
+        }
+    },
+    getY: function(mouseY){
+        if((mouseY-(mouseY%48))/48 < 8){
+            return 7-((mouseY-(mouseY%48))/48);
+        }else{
+            return -1;
+        }
+    },
+    checkForCheck: function(){
+        var attackingPieces = [];
+        //check for check and mate
+        if(this.variables.move % 2 == 0){
+            var kingpos;
+            for(var w=0;w<8;w++){
+                for(var f=0;f<8;f++){
+                    if(this.variables.initBoard[w][f] == 8){
+                        kingpos = [w,f];
+                    }
+
+                }
             }
-        },
-        getY: function(mouseY){
-            if((mouseY-(mouseY%48))/48 < 8){
-                return 7-((mouseY-(mouseY%48))/48);
-            }else{
-                return -1;
-            }
-        },
-        checkForCheck: function(){
-            var attackingPieces = [];
-            //check for check and mate
-            if(board.variables.move % 2 == 0){
-                var kingpos;
-                for(var w=0;w<8;w++){
-                    for(var f=0;f<8;f++){
-                        if(board.variables.initBoard[w][f] == 8){
-                            kingpos = [w,f];
-                        }
 
-                    }
-                }
-
-                for(var i =0;i<8;i++){
-                    for(var j=0;j<8;j++){
-                        var temp = board.variables.initBoard[i][j];
-                        if(temp != 0 && temp < 7){
-                            var positions = board.methods.getValidPositions(temp,i,j,false);
-                            for(var t=0;t<positions.length;t++){
-                                if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
-                                    attackingPieces.push([temp,i,j]);
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }else{
-                var kingpos;
-                for(var w=0;w<8;w++){
-                    for(var f=0;f<8;f++){
-                        if(board.variables.initBoard[w][f] == 2){
-                            kingpos = [w,f];
-                        }
-
-                    }
-                }
-
-                for(var i =0;i<8;i++){
-                    for(var j=0;j<8;j++){
-                        var temp = board.variables.initBoard[i][j];
-                        if(temp != 0 && temp > 6){
-                            var positions = board.methods.getValidPositions(temp,i,j,false);
-                            for(var t=0;t<positions.length;t++){
-                                if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
-                                    attackingPieces.push([temp,i,j]);
-                                }
+            for(var i =0;i<8;i++){
+                for(var j=0;j<8;j++){
+                    var temp = this.variables.initBoard[i][j];
+                    if(temp != 0 && temp < 7){
+                        var positions = this.getValidPositions(temp,i,j,false);
+                        for(var t=0;t<positions.length;t++){
+                            if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
+                                attackingPieces.push([temp,i,j]);
                             }
                         }
                     }
                 }
             }
-            return attackingPieces;
-        },
-        //all piece logic for positions
-        getValidPositions: function(piece,posX,posY,attack){
 
-            var returnValues = [];
-            switch(piece){
-                case 1:
-                    var i =posX+1,j=posY+1;
-                    while(i<8 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i++;
-                        j++;
-                    }
-                    var i =posX+1,j=posY-1;
-                    while(i<8 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i++;
-                        j--;
-                    }
-                    var i =posX-1,j=posY-1;
-                    while(i>=0 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i--;
-                        j--;
-                    }
-                    var i =posX-1,j=posY+1;
-                    while(i>=0 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i--;
-                        j++;
-                    }
-                    return returnValues;
-                    break;
-                case 2:
-                   //get possible movement positions 
-                    if(posY+1 < 8){
-                        if(board.variables.initBoard[posX][posY+1] > 6 || board.variables.initBoard[posX][posY+1] == 0){
-                            returnValues.push([posX,posY+1]);
-                        }
-                        if(posX+1<8 && (board.variables.initBoard[posX+1][posY+1] > 6 || board.variables.initBoard[posX+1][posY+1] == 0)){
-                            returnValues.push([posX+1,posY+1]);
-                        }
-                        if(posX-1>=0 && (board.variables.initBoard[posX-1][posY+1] > 6 || board.variables.initBoard[posX-1][posY+1] == 0)){
-                            returnValues.push([posX-1,posY+1]);
-                        }
-                    }
-                    if(posY-1 >= 0){
-                        if(board.variables.initBoard[posX][posY-1] > 6 || board.variables.initBoard[posX][posY-1] == 0){
-                            returnValues.push([posX,posY-1]);
-                        }
-                        if(posX+1<8 && (board.variables.initBoard[posX+1][posY-1] > 6 || board.variables.initBoard[posX+1][posY-1] == 0)){
-                            returnValues.push([posX+1,posY-1]);
-                        }
-                        if(posX-1>=0 && (board.variables.initBoard[posX-1][posY-1] > 6 || board.variables.initBoard[posX-1][posY-1] == 0)){
-                            returnValues.push([posX-1,posY-1]);
-                        }
-                    }
-                    if(posX-1 >=0 && (board.variables.initBoard[posX-1][posY] > 6 || board.variables.initBoard[posX-1][posY] == 0)){
-                        returnValues.push([posX-1,posY]);
-                    }
-                    if(posX+1 < 8 && (board.variables.initBoard[posX+1][posY] > 6 || board.variables.initBoard[posX+1][posY] == 0)){
-                        returnValues.push([posX+1,posY]);
+        }else{
+            var kingpos;
+            for(var w=0;w<8;w++){
+                for(var f=0;f<8;f++){
+                    if(this.variables.initBoard[w][f] == 2){
+                        kingpos = [w,f];
                     }
 
-                   //find movements into check so many for loops yikes
-                    for(var f =0;f<8;f++){
-                        for(var t=0;t<8;t++){
-                            var temp = board.variables.initBoard[f][t];
-                            if(temp > 6){
-                                var tempPositions = [];
-                                
-                                //king preventing inf loop king attack area
-                                if(temp !=8){
-                                    tempPositions = board.methods.getValidPositions(temp,f,t,true);
-                                }else{
-                                    tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
-                                }
-                                //pawns special movement attack area
-                                if(temp == 10){
-                                    tempPositions = [];
-                                    tempPositions.push([f+1,t+1]);
-                                    tempPositions.push([f+1,t-1]);
-                                }
-                                for(var e=0;e<tempPositions.length;e++){
-                                    for(var q=0;q<returnValues.length;q++){
-                                        if(tempPositions[e][0] == returnValues[q][0] && tempPositions[e][1] == returnValues[q][1]){
-                                            returnValues.splice(q,1);
-                                        }
+                }
+            }
+
+            for(var i =0;i<8;i++){
+                for(var j=0;j<8;j++){
+                    var temp = this.variables.initBoard[i][j];
+                    if(temp != 0 && temp > 6){
+                        var positions = this.getValidPositions(temp,i,j,false);
+                        for(var t=0;t<positions.length;t++){
+                            if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
+                                attackingPieces.push([temp,i,j]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return attackingPieces;
+    },
+    //all piece logic for positions
+    getValidPositions: function(piece,posX,posY,attack){
+
+        var returnValues = [];
+        switch(piece){
+            case 1:
+                var i =posX+1,j=posY+1;
+                while(i<8 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i++;
+                    j++;
+                }
+                var i =posX+1,j=posY-1;
+                while(i<8 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i++;
+                    j--;
+                }
+                var i =posX-1,j=posY-1;
+                while(i>=0 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i--;
+                    j--;
+                }
+                var i =posX-1,j=posY+1;
+                while(i>=0 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i--;
+                    j++;
+                }
+                return returnValues;
+                break;
+            case 2:
+                //get possible movement positions 
+                if(posY+1 < 8){
+                    if(this.variables.initBoard[posX][posY+1] > 6 || this.variables.initBoard[posX][posY+1] == 0){
+                        returnValues.push([posX,posY+1]);
+                    }
+                    if(posX+1<8 && (this.variables.initBoard[posX+1][posY+1] > 6 || this.variables.initBoard[posX+1][posY+1] == 0)){
+                        returnValues.push([posX+1,posY+1]);
+                    }
+                    if(posX-1>=0 && (this.variables.initBoard[posX-1][posY+1] > 6 || this.variables.initBoard[posX-1][posY+1] == 0)){
+                        returnValues.push([posX-1,posY+1]);
+                    }
+                }
+                if(posY-1 >= 0){
+                    if(this.variables.initBoard[posX][posY-1] > 6 || this.variables.initBoard[posX][posY-1] == 0){
+                        returnValues.push([posX,posY-1]);
+                    }
+                    if(posX+1<8 && (this.variables.initBoard[posX+1][posY-1] > 6 || this.variables.initBoard[posX+1][posY-1] == 0)){
+                        returnValues.push([posX+1,posY-1]);
+                    }
+                    if(posX-1>=0 && (this.variables.initBoard[posX-1][posY-1] > 6 || this.variables.initBoard[posX-1][posY-1] == 0)){
+                        returnValues.push([posX-1,posY-1]);
+                    }
+                }
+                if(posX-1 >=0 && (this.variables.initBoard[posX-1][posY] > 6 || this.variables.initBoard[posX-1][posY] == 0)){
+                    returnValues.push([posX-1,posY]);
+                }
+                if(posX+1 < 8 && (this.variables.initBoard[posX+1][posY] > 6 || this.variables.initBoard[posX+1][posY] == 0)){
+                    returnValues.push([posX+1,posY]);
+                }
+
+                //find movements into check so many for loops yikes
+                for(var f =0;f<8;f++){
+                    for(var t=0;t<8;t++){
+                        var temp = this.variables.initBoard[f][t];
+                        if(temp > 6){
+                            var tempPositions = [];
+                            
+                            //king preventing inf loop king attack area
+                            if(temp !=8){
+                                tempPositions = this.getValidPositions(temp,f,t,true);
+                            }else{
+                                tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
+                            }
+                            //pawns special movement attack area
+                            if(temp == 10){
+                                tempPositions = [];
+                                tempPositions.push([f+1,t+1]);
+                                tempPositions.push([f+1,t-1]);
+                            }
+                            for(var e=0;e<tempPositions.length;e++){
+                                for(var q=0;q<returnValues.length;q++){
+                                    if(tempPositions[e][0] == returnValues[q][0] && tempPositions[e][1] == returnValues[q][1]){
+                                        returnValues.splice(q,1);
                                     }
                                 }
                             }
                         }
                     }
-                    return returnValues;
-                    break;
-                case 3:
+                }
+                return returnValues;
+                break;
+            case 3:
+                //horse movement is a thing of beauty
+                var m=2;
+                var n=1;
+                for(var k=0;k<8;k++){
+                    if(k != 4){
+                        if(k%2==0){
+                            m *= -1;
+                        }else{
+                            n *= -1;
+                        }
+                    }else{
+                        n=2;
+                        m=1;
+                    }
+                    if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
+                        if(this.variables.initBoard[posX+m][posY+n] == 0 || this.variables.initBoard[posX+m][posY+n] > 6){
+                            returnValues.push([posX+m,posY+n]);
+                        }
+                    }
+                }
+                return returnValues;
+                break;
+            case 4:
+                if(this.variables.initBoard[posX-1][posY] == 0){
+                    returnValues.push([posX-1,posY]);
+                }
+                if(this.variables.initBoard[posX-1][posY+1] > 6){
+                    returnValues.push([posX-1,posY+1]);
+                }
+                if(this.variables.initBoard[posX-1][posY-1] > 6){
+                    returnValues.push([posX-1,posY-1]);
+                }
+                if(posX == 6 && (this.variables.initBoard[posX-2][posY] == 0) && (this.variables.initBoard[posX-1][posY] == 0)){
+                    returnValues.push([posX-2,posY]);
+                }
+                return returnValues;
+                break;
+            case 5:
+                //also add functionality for taking
+                for(var i=posY+1;i<8;i++){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(this.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posY-1;i>=0;i--){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(this.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posX+1;i<8;i++){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(this.variables.initBoard[i][posY] > 6){
+                                returnValues.push([i,posY]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posX-1;i>=0;i--){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(this.variables.initBoard[i][posY] > 6){
+                                returnValues.push([i,posY]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                var i =posX+1,j=posY+1;
+                while(i<8 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i++;
+                    j++;
+                }
+                var i =posX+1,j=posY-1;
+                while(i<8 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i++;
+                    j--;
+                }
+                var i =posX-1,j=posY-1;
+                while(i>=0 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i--;
+                    j--;
+                }
+                var i =posX-1,j=posY+1;
+                while(i>=0 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] > 6){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i--;
+                    j++;
+                }
+                return returnValues;
+            break;
+            case 6:
+                //also add functionality for taking
+                for(var i=posY+1;i<8;i++){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(this.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posY-1;i>=0;i--){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(this.variables.initBoard[posX][i] > 6){
+                                returnValues.push([posX,i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posX+1;i<8;i++){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(this.variables.initBoard[i][posY] > 6){
+                                returnValues.push([i,posY]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posX-1;i>=0;i--){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(this.variables.initBoard[i][posY] > 6){
+                                returnValues.push([i,posY]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                return returnValues;
+                break;
+            case 7:
+                var i =posX+1,j=posY+1;
+                while(i<8 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i++;
+                    j++;
+                }
+                var i =posX+1,j=posY-1;
+                while(i<8 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i++;
+                    j--;
+                }
+                var i =posX-1,j=posY-1;
+                while(i>=0 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i--;
+                    j--;
+                }
+                var i =posX-1,j=posY+1;
+                while(i>=0 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,j]);
+                        }else{
+                            if(this.variables.initBoard[i][j] < 7){
+                                returnValues.push([i,j]);
+                            }
+                        }
+                        break;
+                    }
+                    i--;
+                    j++;
+                }
+                return returnValues;
+                break;
+            case 8:
+                //get possible movement positions 
+                if(posY+1 < 8){
+                    if(this.variables.initBoard[posX][posY+1] < 7){
+                        returnValues.push([posX,posY+1]);
+                    }
+                    if(posX+1<8){
+                        if(this.variables.initBoard[posX+1][posY+1] < 7){
+                            returnValues.push([posX+1,posY+1]);
+                        }
+                    }
+                    if(posX-1>=0){
+                        if(this.variables.initBoard[posX-1][posY+1] < 7){
+                            returnValues.push([posX-1,posY+1]);
+                        }
+                    }
+                }
+                if(posY-1 >= 0){
+                    if(this.variables.initBoard[posX][posY-1] < 7){
+                        returnValues.push([posX,posY-1]);
+                    }
+                    if(posX+1<8){
+                        if(this.variables.initBoard[posX+1][posY-1] < 7){
+                            returnValues.push([posX+1,posY-1]);
+                        }
+                    }
+                    if(posX-1>=0){
+                        if(this.variables.initBoard[posX-1][posY-1] < 7){
+                            returnValues.push([posX-1,posY-1]);
+                        }
+                    }
+                }
+                if(posX-1 >=0){
+                    if(this.variables.initBoard[posX-1][posY] < 7){
+                        returnValues.push([posX-1,posY]);
+                    }
+                }
+                if(posX+1 < 8){
+                    if(this.variables.initBoard[posX+1][posY] < 7){
+                        returnValues.push([posX+1,posY]);
+                    }
+                }
+
+                //find movements into check so many for loops yikes
+                for(var f =0;f<8;f++){
+                    for(var t=0;t<8;t++){
+                        var temp = this.variables.initBoard[f][t];
+                        if(temp < 7 && temp > 0){
+                            var tempPositions = [];
+
+                            //king attack area preventing inf loop
+                            if(temp !=2){
+                                tempPositions = this.getValidPositions(temp,f,t,true);
+                            }else{
+                                tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
+                            }
+
+                            //pawns special movement attack area
+                            if(temp == 4){
+                                tempPositions = [];
+                                tempPositions.push([f-1,t+1]);
+                                tempPositions.push([f-1,t-1]);
+                            }
+
+                            for(var e=0;e<tempPositions.length;e++){
+                                for(var q=0;q<returnValues.length;q++){
+                                    if(tempPositions[e][0] == returnValues[q][0] && tempPositions[e][1] == returnValues[q][1]){
+                                        returnValues.splice(q,1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return returnValues;
+                break;
+            case 9:
                     //horse movement is a thing of beauty
                     var m=2;
                     var n=1;
@@ -248,614 +620,421 @@ let board = {
                             m=1;
                         }
                         if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
-                            if(board.variables.initBoard[posX+m][posY+n] == 0 || board.variables.initBoard[posX+m][posY+n] > 6){
+                            if(this.variables.initBoard[posX+m][posY+n] == 0 || this.variables.initBoard[posX+m][posY+n] < 7){
                                 returnValues.push([posX+m,posY+n]);
                             }
                         }
                     }
                     return returnValues;
                     break;
-                case 4:
-                    if(board.variables.initBoard[posX-1][posY] == 0){
-                        returnValues.push([posX-1,posY]);
+            case 10:
+                    if(this.variables.initBoard[posX+1][posY] == 0){
+                        returnValues.push([posX+1,posY]);
                     }
-                    if(board.variables.initBoard[posX-1][posY+1] > 6){
-                        returnValues.push([posX-1,posY+1]);
+                    if(this.variables.initBoard[posX+1][posY+1] <7 && this.variables.initBoard[posX+1][posY+1] != 0){
+                        returnValues.push([posX+1,posY+1]);
                     }
-                    if(board.variables.initBoard[posX-1][posY-1] > 6){
-                        returnValues.push([posX-1,posY-1]);
+                    if(this.variables.initBoard[posX+1][posY-1] <7 && this.variables.initBoard[posX+1][posY-1] != 0){
+                        returnValues.push([posX+1,posY-1]);
                     }
-                    if(posX == 6 && (board.variables.initBoard[posX-2][posY] == 0) && (board.variables.initBoard[posX-1][posY] == 0)){
-                        returnValues.push([posX-2,posY]);
+                    if(posX == 1 && this.variables.initBoard[posX+2][posY] == 0 &&  (this.variables.initBoard[posX+1][posY] == 0)){
+                        returnValues.push([posX+2,posY]);
                     }
                     return returnValues;
                     break;
-                case 5:
-                    //also add functionality for taking
-                    for(var i=posY+1;i<8;i++){
-                        if(board.variables.initBoard[posX][i] == 0){
+            case 11:
+                //also add functionality for taking
+                for(var i=posY+1;i<8;i++){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[posX][i] < 7){
                                 returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] > 6){
-                                    returnValues.push([posX,i]);
-                                }
                             }
-                            break;
                         }
+                        break;
                     }
-                    for(var i=posY-1;i>=0;i--){
-                        if(board.variables.initBoard[posX][i] == 0){
+                }
+                for(var i=posY-1;i>=0;i--){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[posX][i] < 7){
                                 returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] > 6){
-                                    returnValues.push([posX,i]);
-                                }
                             }
-                            break;
                         }
+                        break;
                     }
-                    for(var i=posX+1;i<8;i++){
-                        if(board.variables.initBoard[i][posY] == 0){
+                }
+                for(var i=posX+1;i<8;i++){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] > 6){
-                                    returnValues.push([i,posY]);
-                                }
                             }
-                            break;
                         }
+                        break;
                     }
-                    for(var i=posX-1;i>=0;i--){
-                        if(board.variables.initBoard[i][posY] == 0){
+                }
+                for(var i=posX-1;i>=0;i--){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] > 6){
-                                    returnValues.push([i,posY]);
-                                }
                             }
-                            break;
                         }
+                        break;
                     }
-                    var i =posX+1,j=posY+1;
-                    while(i<8 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
+                }
+                var i =posX+1,j=posY+1;
+                while(i<8 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
                             }
-                            break;
                         }
-                        i++;
-                        j++;
+                        break;
                     }
-                    var i =posX+1,j=posY-1;
-                    while(i<8 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
+                    i++;
+                    j++;
+                }
+                var i =posX+1,j=posY-1;
+                while(i<8 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
                             }
-                            break;
                         }
-                        i++;
-                        j--;
+                        break;
                     }
-                    var i =posX-1,j=posY-1;
-                    while(i>=0 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
+                    i++;
+                    j--;
+                }
+                var i =posX-1,j=posY-1;
+                while(i>=0 && j>=0){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
                             }
-                            break;
                         }
-                        i--;
-                        j--;
+                        break;
                     }
-                    var i =posX-1,j=posY+1;
-                    while(i>=0 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
+                    i--;
+                    j--;
+                }
+                var i =posX-1,j=posY+1;
+                while(i>=0 && j<8){
+                    if(this.variables.initBoard[i][j] == 0){
+                        returnValues.push([i,j]);
+                    }else{
+                        if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(attack===true){
+                            if(this.variables.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] > 6){
-                                    returnValues.push([i,j]);
-                                }
                             }
-                            break;
                         }
-                        i--;
-                        j++;
+                        break;
                     }
-                    return returnValues;
+                    i--;
+                    j++;
+                }
+                return returnValues;
+            break;
+            case 12:
+                //also add functionality for taking
+                for(var i=posY+1;i<8;i++){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(this.variables.initBoard[posX][i] < 7){
+                                returnValues.push([posX,i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posY-1;i>=0;i--){
+                    if(this.variables.initBoard[posX][i] == 0){
+                        returnValues.push([posX,i]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([posX,i]);
+                        }else{
+                            if(this.variables.initBoard[posX][i] < 7){
+                                returnValues.push([posX,i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posX+1;i<8;i++){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(this.variables.initBoard[i][posY] < 7){
+                                returnValues.push([i,posY]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for(var i=posX-1;i>=0;i--){
+                    if(this.variables.initBoard[i][posY] == 0){
+                        returnValues.push([i,posY]);
+                    }else{
+                        if(attack===true){
+                            returnValues.push([i,posY]);
+                        }else{
+                            if(this.variables.initBoard[i][posY] < 7){
+                                returnValues.push([i,posY]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                return returnValues;
                 break;
-                case 6:
-                    //also add functionality for taking
-                    for(var i=posY+1;i<8;i++){
-                        if(board.variables.initBoard[posX][i] == 0){
-                            returnValues.push([posX,i]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] > 6){
-                                    returnValues.push([posX,i]);
-                                }
+        }
+    },
+    aiMoveBlack: function(){
+        board.variables.move++;
+
+        //create a temporary board
+        var currBoard = board;
+        var savPos = [-10000,-1,[-1,-1]];
+
+        if(currBoard.variables.move % 2  != 0){
+            console.log("Failed");
+            return;
+        }
+
+        //note this code is not symmetric and does not yet work for white to move
+
+        //check if in check
+        var attackingPieces = currBoard.checkForCheck();
+        if(attackingPieces.length  == 0){
+
+            //code for all moves
+            for(var i = 0;i<8;i++){
+                for(var j = 0;j<8;j++){
+                    if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
+                        var positions = currBoard.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                        for(var g=0;g<positions.length;g++){
+
+                            //prevent modification of local function board enabling reuse for multiple moves.
+                            var tempBoard = currBoard;
+
+                            //check for taken pieces
+                            if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
                             }
-                            break;
-                        }
-                    }
-                    for(var i=posY-1;i>=0;i--){
-                        if(board.variables.initBoard[posX][i] == 0){
-                            returnValues.push([posX,i]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] > 6){
-                                    returnValues.push([posX,i]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posX+1;i<8;i++){
-                        if(board.variables.initBoard[i][posY] == 0){
-                            returnValues.push([i,posY]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] > 6){
-                                    returnValues.push([i,posY]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posX-1;i>=0;i--){
-                        if(board.variables.initBoard[i][posY] == 0){
-                            returnValues.push([i,posY]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] > 6){
-                                    returnValues.push([i,posY]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    return returnValues;
-                    break;
-                case 7:
-                    var i =posX+1,j=posY+1;
-                    while(i<8 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i++;
-                        j++;
-                    }
-                    var i =posX+1,j=posY-1;
-                    while(i<8 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i++;
-                        j--;
-                    }
-                    var i =posX-1,j=posY-1;
-                    while(i>=0 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i--;
-                        j--;
-                    }
-                    var i =posX-1,j=posY+1;
-                    while(i>=0 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i--;
-                        j++;
-                    }
-                    return returnValues;
-                    break;
-                case 8:
-                    //get possible movement positions 
-                    if(posY+1 < 8){
-                        if(board.variables.initBoard[posX][posY+1] < 7){
-                            returnValues.push([posX,posY+1]);
-                        }
-                        if(posX+1<8){
-                            if(board.variables.initBoard[posX+1][posY+1] < 7){
-                                returnValues.push([posX+1,posY+1]);
-                            }
-                        }
-                        if(posX-1>=0){
-                            if(board.variables.initBoard[posX-1][posY+1] < 7){
-                                returnValues.push([posX-1,posY+1]);
+
+                            //complete the move
+                            tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
+                            tempBoard.variables.initBoard[i][j] = 0;
+                            tempBoard.variables.move++;
+
+                            //evaluate the tree descent value
+                            var evalValue = board.recursiveTreeDescent(tempBoard,2);
+                            if( evalValue > savPos[0]){
+                                savPos[0] = evalValue;
+                                savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                savPos[2] = [positions[g][0],positions[g][1]];
+
                             }
                         }
                     }
-                    if(posY-1 >= 0){
-                        if(board.variables.initBoard[posX][posY-1] < 7){
-                            returnValues.push([posX,posY-1]);
-                        }
-                        if(posX+1<8){
-                            if(board.variables.initBoard[posX+1][posY-1] < 7){
-                                returnValues.push([posX+1,posY-1]);
-                            }
-                        }
-                        if(posX-1>=0){
-                            if(board.variables.initBoard[posX-1][posY-1] < 7){
-                                returnValues.push([posX-1,posY-1]);
-                            }
-                        }
-                    }
-                    if(posX-1 >=0){
-                        if(board.variables.initBoard[posX-1][posY] < 7){
-                            returnValues.push([posX-1,posY]);
-                        }
-                    }
-                    if(posX+1 < 8){
-                        if(board.variables.initBoard[posX+1][posY] < 7){
-                            returnValues.push([posX+1,posY]);
-                        }
+                }
+            }
+        }else{
+
+            //in check logic
+            var kingpos;
+            var blockingPositions = 0;
+
+            //get king position
+            for(var w=0;w<8;w++){
+                for(var f=0;f<8;f++){
+                    if(currBoard.variables.initBoard[w][f] == 2){
+                        kingpos = [w,f];
                     }
 
-                    //find movements into check so many for loops yikes
-                    for(var f =0;f<8;f++){
-                        for(var t=0;t<8;t++){
-                            var temp = board.variables.initBoard[f][t];
-                            if(temp < 7 && temp > 0){
-                                var tempPositions = [];
+                }
+            }
 
-                                //king attack area preventing inf loop
-                                if(temp !=2){
-                                    tempPositions = board.methods.getValidPositions(temp,f,t,true);
-                                }else{
-                                    tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
-                                }
+            //if it is possible to block the check
+            if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
+                //for all black pieces check if they can block
+                for(var x=0;x<8;x++){
+                    for(var y=0;y<8;y++){
+                        if(currBoard.variables.initBoard[x][y] < 7 && currBoard.variables.initBoard[x][y] != 0){
+                            var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                            for(var e=0;e<allPositions.length;e++){
+                                if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
+                                    
+                                    blockingPositions++;
 
-                                //pawns special movement attack area
-                                if(temp == 4){
-                                    tempPositions = [];
-                                    tempPositions.push([f-1,t+1]);
-                                    tempPositions.push([f-1,t-1]);
-                                }
+                                    //prevent modification of local function board enabling reuse for multiple moves.
+                                    var tempBoard = currBoard;
 
-                                for(var e=0;e<tempPositions.length;e++){
-                                    for(var q=0;q<returnValues.length;q++){
-                                        if(tempPositions[e][0] == returnValues[q][0] && tempPositions[e][1] == returnValues[q][1]){
-                                            returnValues.splice(q,1);
-                                        }
+                                    //check for taken pieces
+                                    if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
                                     }
-                                }
-                            }
-                        }
-                    }
-                    return returnValues;
-                    break;
-                case 9:
-                        //horse movement is a thing of beauty
-                        var m=2;
-                        var n=1;
-                        for(var k=0;k<8;k++){
-                            if(k != 4){
-                                if(k%2==0){
-                                    m *= -1;
-                                }else{
-                                    n *= -1;
-                                }
-                            }else{
-                                n=2;
-                                m=1;
-                            }
-                            if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
-                                if(board.variables.initBoard[posX+m][posY+n] == 0 || board.variables.initBoard[posX+m][posY+n] < 7){
-                                    returnValues.push([posX+m,posY+n]);
-                                }
-                            }
-                        }
-                        return returnValues;
-                        break;
-                case 10:
-                        if(board.variables.initBoard[posX+1][posY] == 0){
-                            returnValues.push([posX+1,posY]);
-                        }
-                        if(board.variables.initBoard[posX+1][posY+1] <7 && board.variables.initBoard[posX+1][posY+1] != 0){
-                            returnValues.push([posX+1,posY+1]);
-                        }
-                        if(board.variables.initBoard[posX+1][posY-1] <7 && board.variables.initBoard[posX+1][posY-1] != 0){
-                            returnValues.push([posX+1,posY-1]);
-                        }
-                        if(posX == 1 && board.variables.initBoard[posX+2][posY] == 0 &&  (board.variables.initBoard[posX+1][posY] == 0)){
-                            returnValues.push([posX+2,posY]);
-                        }
-                        return returnValues;
-                        break;
-                case 11:
-                    //also add functionality for taking
-                    for(var i=posY+1;i<8;i++){
-                        if(board.variables.initBoard[posX][i] == 0){
-                            returnValues.push([posX,i]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] < 7){
-                                    returnValues.push([posX,i]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posY-1;i>=0;i--){
-                        if(board.variables.initBoard[posX][i] == 0){
-                            returnValues.push([posX,i]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] < 7){
-                                    returnValues.push([posX,i]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posX+1;i<8;i++){
-                        if(board.variables.initBoard[i][posY] == 0){
-                            returnValues.push([i,posY]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] < 7){
-                                    returnValues.push([i,posY]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posX-1;i>=0;i--){
-                        if(board.variables.initBoard[i][posY] == 0){
-                            returnValues.push([i,posY]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] < 7){
-                                    returnValues.push([i,posY]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    var i =posX+1,j=posY+1;
-                    while(i<8 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i++;
-                        j++;
-                    }
-                    var i =posX+1,j=posY-1;
-                    while(i<8 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i++;
-                        j--;
-                    }
-                    var i =posX-1,j=posY-1;
-                    while(i>=0 && j>=0){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i--;
-                        j--;
-                    }
-                    var i =posX-1,j=posY+1;
-                    while(i>=0 && j<8){
-                        if(board.variables.initBoard[i][j] == 0){
-                            returnValues.push([i,j]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,j]);
-                            }else{
-                                if(board.variables.initBoard[i][j] < 7){
-                                    returnValues.push([i,j]);
-                                }
-                            }
-                            break;
-                        }
-                        i--;
-                        j++;
-                    }
-                    return returnValues;
-                break;
-                case 12:
-                    //also add functionality for taking
-                    for(var i=posY+1;i<8;i++){
-                        if(board.variables.initBoard[posX][i] == 0){
-                            returnValues.push([posX,i]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] < 7){
-                                    returnValues.push([posX,i]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posY-1;i>=0;i--){
-                        if(board.variables.initBoard[posX][i] == 0){
-                            returnValues.push([posX,i]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([posX,i]);
-                            }else{
-                                if(board.variables.initBoard[posX][i] < 7){
-                                    returnValues.push([posX,i]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posX+1;i<8;i++){
-                        if(board.variables.initBoard[i][posY] == 0){
-                            returnValues.push([i,posY]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] < 7){
-                                    returnValues.push([i,posY]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    for(var i=posX-1;i>=0;i--){
-                        if(board.variables.initBoard[i][posY] == 0){
-                            returnValues.push([i,posY]);
-                        }else{
-                            if(attack===true){
-                                returnValues.push([i,posY]);
-                            }else{
-                                if(board.variables.initBoard[i][posY] < 7){
-                                    returnValues.push([i,posY]);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    return returnValues;
-                    break;
-            }
-        },
-        aiMoveBlack: function(){
-            board.variables.move++;
 
-            //create a temporary board
-            var currBoard = board;
-            var savPos = [-10000,-1,[-1,-1]];
+                                    //complete the move
+                                    tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
+                                    tempBoard.variables.initBoard[x][y] = 0;
+                                    tempBoard.variables.move++;
 
-            if(currBoard.variables.move % 2  != 0){
-                console.log("Failed");
-                return;
+                                    //evaluate the tree descent value
+                                    var evalValue = board.recursiveTreeDescent(tempBoard,2);
+                                    if( evalValue > savPos[0]){
+                                        savPos[0] = evalValue;
+                                        savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                        savPos[2] = [allPositions[e][0],allPositions[e][1]];
+
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-            //note this code is not symmetric and does not yet work for white to move
+            //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
+            var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+            if(kingPositions.length == 0 && blockingPositions == 0){
+                console.log("checkmate");
+                return -1000;
+            }else{
+                for(var e=0;e<kingPositions.length;e++){
+                    //check for taken pieces
+                    if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                    }
 
+                    //complete the move
+                    tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
+                    tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
+                    tempBoard.variables.move++;
+
+                    //evaluate the tree descent value
+                    var evalValue = board.recursiveTreeDescent(tempBoard,2);
+                    if( evalValue > savPos[0]){
+                        savPos[0] = evalValue;
+                        savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                        savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
+                    }
+                }
+            }
+
+        }
+
+        //log evaluated position for debugging
+        console.log(savPos);
+        //run saved position to the board
+    },
+    recursiveTreeDescent: function(currBoard,depth){
+        depth--;
+        
+
+        //check end of tree return values of depth
+        if(depth == 0){
+            var sum = 0;
+            for(var i =0;i<currBoard.variables.killList.length;i++){
+                switch (currBoard.variables.killList[i]){
+                    case 1:
+                        sum -= 3;
+                        break;
+                    case 2:
+                        console.log("Failed kill list logic");
+                        break;
+                    case 3:
+                        sum -= 3;
+                        break;
+                    case 4:
+                        sum -= 1;
+                        break;
+                    case 5:
+                        sum -= 9;
+                        break;
+                    case 6:
+                        sum -= 5;
+                        break;
+                    case 7:
+                        sum += 3;
+                        break;
+                    case 8:
+                        console.log("failed chess logic");
+                        break;
+                    case 9:
+                        sum += 3;
+                        break;
+                    case 10:
+                        sum += 1;
+                        break;
+                    case 11:
+                        sum += 9;
+                        break;
+                    case 12:
+                        sum += 5;
+                        break;
+
+                }
+            }
+            return sum;
+        }
+
+        //minimize
+        if(currBoard.variables.move % 2 == 0){
+            var savPos = [10000,-1,[-1,-1]];
             //check if in check
-            var attackingPieces = currBoard.methods.checkForCheck();
+            var attackingPieces = currBoard.checkForCheck();
             if(attackingPieces.length  == 0){
 
                 //code for all moves
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
-                        if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
-                            var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                        if(currBoard.variables.initBoard[i][j]>6){
+                            var positions = currBoard.getValidPositions(board.variables.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
@@ -872,7 +1051,133 @@ let board = {
                                 tempBoard.variables.move++;
 
                                 //evaluate the tree descent value
-                                var evalValue = board.methods.recursiveTreeDescent(tempBoard,2);
+                                var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                                if( evalValue < savPos[0]){
+                                    savPos[0] = evalValue;
+                                    savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                    savPos[2] = [positions[g][0],positions[g][1]];
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }else{
+
+                //in check logic
+                var kingpos;
+                var blockingPositions = 0;
+
+                //get king position
+                for(var w=0;w<8;w++){
+                    for(var f=0;f<8;f++){
+                        if(currBoard.variables.initBoard[w][f] == 8){
+                            kingpos = [w,f];
+                        }
+
+                    }
+                }
+
+                //if it is possible to block the check
+                if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
+                    //for all black pieces check if they can block
+                    for(var x=0;x<8;x++){
+                        for(var y=0;y<8;y++){
+                            if(currBoard.variables.initBoard[x][y] > 6){
+                                var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                                for(var e=0;e<allPositions.length;e++){
+                                    if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
+                                        
+                                        blockingPositions++;
+
+                                        //prevent modification of local function board enabling reuse for multiple moves.
+                                        var tempBoard = currBoard;
+
+                                        //check for taken pieces
+                                        if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
+                                        }
+
+                                        //complete the move
+                                        tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
+                                        tempBoard.variables.initBoard[x][y] = 0;
+                                        tempBoard.variables.move++;
+
+                                        //evaluate the tree descent value
+                                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                                        if( evalValue < savPos[0]){
+                                            savPos[0] = evalValue;
+                                            savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                            savPos[2] = [allPositions[e][0],allPositions[e][1]];
+
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
+                var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                if(kingPositions.length == 0 && blockingPositions == 0){
+                    console.log("checkmate");
+                    return -1000;
+                }else{
+                    for(var e=0;e<kingPositions.length;e++){
+                        //check for taken pieces
+                        if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                        }
+
+                        //complete the move
+                        tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
+                        tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
+                        tempBoard.variables.move++;
+
+                        //evaluate the tree descent value
+                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                        if( evalValue > savPos[0]){
+                            savPos[0] = evalValue;
+                            savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                            savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
+                        }
+                    }
+                }
+
+            }
+        }
+        //maximise 
+        //yuck code duplication
+        else{
+            //check if in check
+            var attackingPieces = currBoard.checkForCheck();
+            var savPos = [-10000,-1,[-1,-1]];
+            if(attackingPieces.length  == 0){
+
+                //code for all moves
+                for(var i = 0;i<8;i++){
+                    for(var j = 0;j<8;j++){
+                        if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
+                            var positions = currBoard.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                            for(var g=0;g<positions.length;g++){
+
+                                //prevent modification of local function board enabling reuse for multiple moves.
+                                var tempBoard = currBoard;
+
+                                //check for taken pieces
+                                if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                    tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
+                                }
+
+                                //complete the move
+                                tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
+                                tempBoard.variables.initBoard[i][j] = 0;
+                                tempBoard.variables.move++;
+
+                                //evaluate the tree descent value
+                                var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                                 if( evalValue > savPos[0]){
                                     savPos[0] = evalValue;
                                     savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
@@ -925,7 +1230,7 @@ let board = {
                                         tempBoard.variables.move++;
 
                                         //evaluate the tree descent value
-                                        var evalValue = board.methods.recursiveTreeDescent(tempBoard,2);
+                                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                                         if( evalValue > savPos[0]){
                                             savPos[0] = evalValue;
                                             savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
@@ -958,7 +1263,7 @@ let board = {
                         tempBoard.variables.move++;
 
                         //evaluate the tree descent value
-                        var evalValue = board.methods.recursiveTreeDescent(tempBoard,2);
+                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                         if( evalValue > savPos[0]){
                             savPos[0] = evalValue;
                             savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
@@ -968,321 +1273,8 @@ let board = {
                 }
 
             }
-
-            //log evaluated position for debugging
-            console.log(savPos);
-            //run saved position to the board
-        },
-        recursiveTreeDescent: function(currBoard,depth){
-            depth--;
-            
-
-            //check end of tree return values of depth
-            if(depth == 0){
-                var sum = 0;
-                for(var i =0;i<currBoard.variables.killList.length;i++){
-                    switch (currBoard.variables.killList[i]){
-                        case 1:
-                            sum -= 3;
-                            break;
-                        case 2:
-                            console.log("Failed kill list logic");
-                            break;
-                        case 3:
-                            sum -= 3;
-                            break;
-                        case 4:
-                            sum -= 1;
-                            break;
-                        case 5:
-                            sum -= 9;
-                            break;
-                        case 6:
-                            sum -= 5;
-                            break;
-                        case 7:
-                            sum += 3;
-                            break;
-                        case 8:
-                            console.log("failed chess logic");
-                            break;
-                        case 9:
-                            sum += 3;
-                            break;
-                        case 10:
-                            sum += 1;
-                            break;
-                        case 11:
-                            sum += 9;
-                            break;
-                        case 12:
-                            sum += 5;
-                            break;
-
-                    }
-                }
-                return sum;
-            }
-
-            //minimize
-            if(currBoard.variables.move % 2 == 0){
-                var savPos = [10000,-1,[-1,-1]];
-                //check if in check
-                var attackingPieces = currBoard.methods.checkForCheck();
-                if(attackingPieces.length  == 0){
-
-                    //code for all moves
-                    for(var i = 0;i<8;i++){
-                        for(var j = 0;j<8;j++){
-                            if(currBoard.variables.initBoard[i][j]>6){
-                                var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
-                                for(var g=0;g<positions.length;g++){
-
-                                    //prevent modification of local function board enabling reuse for multiple moves.
-                                    var tempBoard = currBoard;
-
-                                    //check for taken pieces
-                                    if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
-                                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
-                                    }
-
-                                    //complete the move
-                                    tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
-                                    tempBoard.variables.initBoard[i][j] = 0;
-                                    tempBoard.variables.move++;
-
-                                    //evaluate the tree descent value
-                                    var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
-                                    if( evalValue < savPos[0]){
-                                        savPos[0] = evalValue;
-                                        savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
-                                        savPos[2] = [positions[g][0],positions[g][1]];
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }else{
-
-                    //in check logic
-                    var kingpos;
-                    var blockingPositions = 0;
-
-                    //get king position
-                    for(var w=0;w<8;w++){
-                        for(var f=0;f<8;f++){
-                            if(currBoard.variables.initBoard[w][f] == 8){
-                                kingpos = [w,f];
-                            }
-
-                        }
-                    }
-
-                    //if it is possible to block the check
-                    if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
-                        //for all black pieces check if they can block
-                        for(var x=0;x<8;x++){
-                            for(var y=0;y<8;y++){
-                                if(currBoard.variables.initBoard[x][y] > 6){
-                                    var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
-                                    for(var e=0;e<allPositions.length;e++){
-                                        if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
-                                            
-                                            blockingPositions++;
-
-                                            //prevent modification of local function board enabling reuse for multiple moves.
-                                            var tempBoard = currBoard;
-
-                                            //check for taken pieces
-                                            if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
-                                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
-                                            }
-
-                                            //complete the move
-                                            tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
-                                            tempBoard.variables.initBoard[x][y] = 0;
-                                            tempBoard.variables.move++;
-
-                                            //evaluate the tree descent value
-                                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
-                                            if( evalValue < savPos[0]){
-                                                savPos[0] = evalValue;
-                                                savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
-                                                savPos[2] = [allPositions[e][0],allPositions[e][1]];
-
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-                    var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
-                    if(kingPositions.length == 0 && blockingPositions == 0){
-                        console.log("checkmate");
-                        return -1000;
-                    }else{
-                        for(var e=0;e<kingPositions.length;e++){
-                            //check for taken pieces
-                            if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
-                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
-                            }
-
-                            //complete the move
-                            tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
-                            tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
-                            tempBoard.variables.move++;
-
-                            //evaluate the tree descent value
-                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
-                            if( evalValue > savPos[0]){
-                                savPos[0] = evalValue;
-                                savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
-                                savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
-                            }
-                        }
-                    }
-
-                }
-            }
-            //maximise 
-            //yuck code duplication
-            else{
-                //check if in check
-                var attackingPieces = currBoard.methods.checkForCheck();
-                var savPos = [-10000,-1,[-1,-1]];
-                if(attackingPieces.length  == 0){
-
-                    //code for all moves
-                    for(var i = 0;i<8;i++){
-                        for(var j = 0;j<8;j++){
-                            if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
-                                var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
-                                for(var g=0;g<positions.length;g++){
-
-                                    //prevent modification of local function board enabling reuse for multiple moves.
-                                    var tempBoard = currBoard;
-
-                                    //check for taken pieces
-                                    if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
-                                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
-                                    }
-
-                                    //complete the move
-                                    tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
-                                    tempBoard.variables.initBoard[i][j] = 0;
-                                    tempBoard.variables.move++;
-
-                                    //evaluate the tree descent value
-                                    var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
-                                    if( evalValue > savPos[0]){
-                                        savPos[0] = evalValue;
-                                        savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
-                                        savPos[2] = [positions[g][0],positions[g][1]];
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }else{
-
-                    //in check logic
-                    var kingpos;
-                    var blockingPositions = 0;
-
-                    //get king position
-                    for(var w=0;w<8;w++){
-                        for(var f=0;f<8;f++){
-                            if(currBoard.variables.initBoard[w][f] == 2){
-                                kingpos = [w,f];
-                            }
-
-                        }
-                    }
-
-                    //if it is possible to block the check
-                    if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
-                        //for all black pieces check if they can block
-                        for(var x=0;x<8;x++){
-                            for(var y=0;y<8;y++){
-                                if(currBoard.variables.initBoard[x][y] < 7 && currBoard.variables.initBoard[x][y] != 0){
-                                    var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
-                                    for(var e=0;e<allPositions.length;e++){
-                                        if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
-                                            
-                                            blockingPositions++;
-
-                                            //prevent modification of local function board enabling reuse for multiple moves.
-                                            var tempBoard = currBoard;
-
-                                            //check for taken pieces
-                                            if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
-                                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
-                                            }
-
-                                            //complete the move
-                                            tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
-                                            tempBoard.variables.initBoard[x][y] = 0;
-                                            tempBoard.variables.move++;
-
-                                            //evaluate the tree descent value
-                                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
-                                            if( evalValue > savPos[0]){
-                                                savPos[0] = evalValue;
-                                                savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
-                                                savPos[2] = [allPositions[e][0],allPositions[e][1]];
-
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-                    var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
-                    if(kingPositions.length == 0 && blockingPositions == 0){
-                        console.log("checkmate");
-                        return -1000;
-                    }else{
-                        for(var e=0;e<kingPositions.length;e++){
-                            //check for taken pieces
-                            if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
-                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
-                            }
-
-                            //complete the move
-                            tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
-                            tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
-                            tempBoard.variables.move++;
-
-                            //evaluate the tree descent value
-                            var evalValue = board.methods.recursiveTreeDescent(tempBoard,depth);
-                            if( evalValue > savPos[0]){
-                                savPos[0] = evalValue;
-                                savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
-                                savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            //check for checkmate value 1000
-            
-            
-
-            
-    
         }
+        //check for checkmate value 1000
     }
 }
 
@@ -1313,8 +1305,8 @@ $(document).mousedown(function(event){
         return;
     }
 
-    coX = board.methods.getX(currentMousePos.x);
-    coY = board.methods.getY(currentMousePos.y);
+    coX = board.getX(currentMousePos.x);
+    coY = board.getY(currentMousePos.y);
 
     //checking before allowing move
     //check white or black to move
@@ -1329,14 +1321,14 @@ $(document).mousedown(function(event){
         if(board.variables.initBoard[coY][coX] == 0){
             return;
         }else{
-            allPositions = board.methods.getValidPositions(board.variables.initBoard[coY][coX],coY,coX,false);
+            allPositions = board.getValidPositions(board.variables.initBoard[coY][coX],coY,coX,false);
         }
     }else{
         return;
     }
 
     //check logic
-    var attackingPieces = board.methods.checkForCheck();
+    var attackingPieces = board.checkForCheck();
     var blockingPositions = [];
     if(attackingPieces.length > 0){
         var pass = false;
@@ -1423,8 +1415,8 @@ $(document).mousedown(function(event){
     $('#selector').off("mousemove");
 
     //check if valid
-    var relX = board.methods.getX(currEvent.pageX);
-    var relY = board.methods.getY(currEvent.pageY);
+    var relX = board.getX(currEvent.pageX);
+    var relY = board.getY(currEvent.pageY);
 
     var found = false;
     for(var a = 0;a<allPositions.length;a++){
@@ -1459,11 +1451,11 @@ $(document).mousedown(function(event){
             board.variables.initBoard[relY][relX] = 5;
         }
         if(prom){
-            board.methods.intializeBoard();
+            board.intializeBoard();
         }
 
     }else{
-        board.methods.intializeBoard();
+        board.intializeBoard();
     }
 
     //snap to box
@@ -1488,8 +1480,8 @@ $(document).mousedown(function(event){
 
 
 $(document).ready(function() {
-    board.methods.intializeBoard();
-    //var arr = board.methods.getValidPositions(11,7,0);
+    board.intializeBoard();
+    //var arr = board.getValidPositions(11,7,0);
     //for(var i=0;i<arr.length;i++){
         //$('#'+(arr[i][0]+1)+'_'+(arr[i][1]+1)).addClass("highlight");
     //}
