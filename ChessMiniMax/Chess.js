@@ -836,24 +836,32 @@ let board = {
         aiMoveBlack: function(){
             board.variables.move++;
             var savMoves = [];
+            //create a temporary board
+            var currBoard = board;
+
             //check if in check
-            var attackingPieces = board.methods.checkForCheck();
+            var attackingPieces = currBoard.checkForCheck();
             if(attackingPieces.length  == 0){
 
                 //code for all moves
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
                         if(board.variables.initBoard[i][j]<7 && board.variables.initBoard[i][j] != 0){
-                            var positions = board.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                            var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
-                                var currBoard = board.variables.initBoard;
-                                var tempKillList = board.variables.killList;
+
+                                //check for taken pieces
                                 if(currBoard[positions[g][0]][positions[g][1]] != 0){
-                                    tempKillList.push(currBoard[positions[g][0]][positions[g][1]]);
+                                    currBoard.variables.killList.push(currBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
                                 }
-                                currBoard[positions[g][0]][positions[g][1]] = currBoard[i][j];
-                                currBoard[i][j] = 0;
-                                board.recursiveTreeDescent(currBoard,board.variables.move,tempKillList,2);
+
+                                //complete the move
+                                currBoard.variables.initBoard[positions[g][0]][positions[g][1]] = currBoard[i][j];
+                                currBoard.variables.initBoard[i][j] = 0;
+                                currBoard.variables.move++;
+
+                                //call the recursiveTreeDescent using this objects method.
+                                board.methods.recursiveTreeDescent(currBoard,2);
                             }
                         }
                     }
@@ -861,7 +869,7 @@ let board = {
             }else{
                 var kingpos;
                 var blockingPositions;
-                if(board.variables.move % 2 == 1){
+                if(currBoard.move % 2 == 1){
                     for(var w=0;w<8;w++){
                         for(var f=0;f<8;f++){
                             if(board.variables.initBoard[w][f] == 2){
@@ -870,30 +878,25 @@ let board = {
 
                         }
                     }
-                }else{
-                    console.log("failed logic");
                     if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
-
-                        for(var a=0;a<8;a++){
-                            for(var c=0;c<8;c++){
-                                for(var e=0;e<allPositions.length;e++){
-                                    //using vector scalar transformation to check if point is on the line
-                                    //value will be some positive fraction if it lies between the two points
-                                    if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
-                                        blockingPositions.push([allPositions[e][0],allPositions[e][1]]);
-                                        pass = true;
-                                    }
-                                }   
+                        //for all black pieces check if they can block
+                        for(var x=0;x<8;x++){
+                            for(var y=0;y<8;y++){
+                                if(currBoard[x][y] < 7 && curBoard[x][y] != 0){
+                                    
+                                }
                             }
                         }
                     }
+                }else{
+                    console.log("failed logic");
                     return;
                 }
 
 
             }
         },
-        recursiveTreeDescent: function(currBoard,move,deadPieces,depth){
+        recursiveTreeDescent: function(currBoard,depth){
             depth--;
             //check for checkmate value 1000
             
