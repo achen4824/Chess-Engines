@@ -835,13 +835,17 @@ let board = {
         },
         aiMoveBlack: function(){
             board.variables.move++;
+
             //create a temporary board
             var currBoard = board;
+            var savPos = [-10000,-1,[2,3]];
 
             if(currBoard.variables.move % 2  != 0){
                 console.log("Failed");
                 return;
             }
+
+            //note this code is not symmetric and does not yet work for white to move
 
             //check if in check
             var attackingPieces = currBoard.checkForCheck();
@@ -850,7 +854,7 @@ let board = {
                 //code for all moves
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
-                        if(board.variables.initBoard[i][j]<7 && board.variables.initBoard[i][j] != 0){
+                        if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
                             var positions = currBoard.methods.getValidPositions(board.variables.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
 
@@ -863,12 +867,18 @@ let board = {
                                 }
 
                                 //complete the move
-                                tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard[i][j];
+                                tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
                                 tempBoard.variables.initBoard[i][j] = 0;
                                 tempBoard.variables.move++;
 
-                                //call the recursiveTreeDescent using this objects method returns a single number
-                                board.methods.recursiveTreeDescent(tempBoard,2);
+                                //evaluate the tree descent value
+                                var evalValue = board.methods.recursiveTreeDescent(tempBoard,2);
+                                if( evalValue > savPos[0]){
+                                    savPos[0] = evalValue;
+                                    savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                    savPos[2] = [positions[g][0],positions[g][1]];
+
+                                }
                             }
                         }
                     }
@@ -882,7 +892,7 @@ let board = {
                 //get king position
                 for(var w=0;w<8;w++){
                     for(var f=0;f<8;f++){
-                        if(board.variables.initBoard[w][f] == 2){
+                        if(currBoard.variables.initBoard[w][f] == 2){
                             kingpos = [w,f];
                         }
 
@@ -910,13 +920,18 @@ let board = {
                                         }
 
                                         //complete the move
-                                        tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard[i][j];
-                                        tempBoard.variables.initBoard[i][j] = 0;
+                                        tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
+                                        tempBoard.variables.initBoard[x][y] = 0;
                                         tempBoard.variables.move++;
 
-                                        //call the recursiveTreeDescent using this objects method returns a single number
-                                        board.methods.recursiveTreeDescent(tempBoard,2);
+                                        //evaluate the tree descent value
+                                        var evalValue = board.methods.recursiveTreeDescent(tempBoard,2);
+                                        if( evalValue > savPos[0]){
+                                            savPos[0] = evalValue;
+                                            savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                            savPos[2] = [allPositions[e][0],allPositions[e][1]];
 
+                                        }
 
                                     }
                                 }
@@ -926,8 +941,37 @@ let board = {
                 }
 
                 //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
+                var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                if(kingPositions.length == 0 && blockingPositions == 0){
+                    console.log("checkmate");
+                    return -1000;
+                }else{
+                    for(var e=0;e<kingPositions.length;e++){
+                        //check for taken pieces
+                        if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                        }
+
+                        //complete the move
+                        tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
+                        tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
+                        tempBoard.variables.move++;
+
+                        //evaluate the tree descent value
+                        var evalValue = board.methods.recursiveTreeDescent(tempBoard,2);
+                        if( evalValue > savPos[0]){
+                            savPos[0] = evalValue;
+                            savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                            savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
+                        }
+                    }
+                }
 
             }
+
+            //log eavluated position for debugging
+            console.log(savPos);
+            //run saved position to the board
         },
         recursiveTreeDescent: function(currBoard,depth){
             depth--;
@@ -1093,7 +1137,7 @@ $(document).mousedown(function(event){
     if((((currEvent.pageY-(currEvent.pageY%48))/48 < 8 && (currEvent.pageX-(currEvent.pageX%48))/48 < 8))&&found){
         //check for capture
         if(board.variables.initBoard[relY][relX]  != 0){
-            killList.push(board.variables.initBoard[relY][relX]);
+            board.variables.killList.push(board.variables.initBoard[relY][relX]);
         }
 
         //change board values
