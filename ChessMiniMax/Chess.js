@@ -38,6 +38,8 @@ let board = {
             for(var j = 0;j<this.initBoard[i].length;j++){
                 if(this.initBoard[i][j] != 0){
                     $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/"+this.initBoard[i][j]+".png'></img>");
+                }else{
+                    $('#'+(i+1)+'_'+(j+1)).html("");
                 }
             }
         }
@@ -852,13 +854,11 @@ let board = {
     },
     aiMoveBlack: function(){
         //board.move++;
-
+        var movePrediction = 3;
         //create a temporary board
         var currBoard = clone(board);
 
-        console.log(currBoard);
-
-        var savPos = [-10000,-1,[-1,-1]];
+        var savPos = [-10000,-1,[-1,-1],[-1,-1]];
 
         if(currBoard.move % 2 == 0){
             console.log("Failed");
@@ -892,11 +892,12 @@ let board = {
                             tempBoard.move++;
 
                             //evaluate the tree descent value
-                            var evalValue = board.recursiveTreeDescent(tempBoard,1);
+                            var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction);
                             if( evalValue > savPos[0]){
                                 savPos[0] = evalValue;
                                 savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
-                                savPos[2] = [positions[g][0],positions[g][1]];
+                                savPos[2] = [i,j];
+                                savPos[3] = [positions[g][0],positions[g][1]];
 
                             }
                         }
@@ -945,11 +946,12 @@ let board = {
                                     tempBoard.move++;
 
                                     //evaluate the tree descent value
-                                    var evalValue = board.recursiveTreeDescent(tempBoard,1);
+                                    var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction);
                                     if( evalValue > savPos[0]){
                                         savPos[0] = evalValue;
                                         savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
-                                        savPos[2] = [allPositions[e][0],allPositions[e][1]];
+                                        savPos[2] = [i,j];
+                                        savPos[3] = [positions[g][0],positions[g][1]];
 
                                     }
 
@@ -967,6 +969,10 @@ let board = {
                 return -1000;
             }else{
                 for(var e=0;e<kingPositions.length;e++){
+
+                    //prevent modification of local function board enabling reuse for multiple moves.
+                    var tempBoard = clone(currBoard);
+
                     //check for taken pieces
                     if(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
                         tempBoard.killList.push(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
@@ -978,11 +984,12 @@ let board = {
                     tempBoard.move++;
 
                     //evaluate the tree descent value
-                    var evalValue = board.recursiveTreeDescent(tempBoard,1);
+                    var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction);
                     if( evalValue > savPos[0]){
                         savPos[0] = evalValue;
                         savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
-                        savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
+                        savPos[2] = [i,j];
+                        savPos[3] = [positions[g][0],positions[g][1]];
                     }
                 }
             }
@@ -992,12 +999,22 @@ let board = {
         //log evaluated position for debugging
         console.log(savPos);
         //run saved position to the board
+         //check for taken pieces
+         if(board.initBoard[savPos[3][0]][savPos[3][1]] != 0){
+            board.killList.push(board.initBoard[savPos[3][0]][savPos[3][1]]);
+        }
+
+        //complete the move
+        board.initBoard[savPos[3][0]][savPos[3][1]] = board.initBoard[savPos[2][0]][savPos[2][1]];
+        board.initBoard[savPos[2][0]][savPos[2][1]] = 0;
+        board.intializeBoard();
+        board.move++;
     },
     recursiveTreeDescent: function(currBoard,depth){
         depth--;
         calc++;
-        console.log(calc);
-        console.log(currBoard.initBoard);
+        //console.log(calc);
+        //console.log(currBoard.initBoard);
 
         //check end of tree return values of depth
         if(depth == 0){
@@ -1008,6 +1025,7 @@ let board = {
                         sum -= 3;
                         break;
                     case 2:
+                        console.log(currBoard.initBoard);
                         console.log("Failed kill list logic");
                         break;
                     case 3:
@@ -1149,6 +1167,10 @@ let board = {
                     return 1000;
                 }else{
                     for(var e=0;e<kingPositions.length;e++){
+
+                        //prevent modification of local function board enabling reuse for multiple moves.
+                        var tempBoard = clone(currBoard);
+
                         //check for taken pieces
                         if(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
                             tempBoard.killList.push(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
@@ -1276,6 +1298,10 @@ let board = {
                     return -1000;
                 }else{
                     for(var e=0;e<kingPositions.length;e++){
+
+                        //prevent modification of local function board enabling reuse for multiple moves.
+                        var tempBoard = clone(currBoard);
+
                         //check for taken pieces
                         if(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
                             tempBoard.killList.push(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
