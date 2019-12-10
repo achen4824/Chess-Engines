@@ -833,13 +833,17 @@ let board = {
         }
     },
     aiMoveBlack: function(){
-        board.variables.move++;
+        //board.variables.move++;
 
         //create a temporary board
-        var currBoard = board;
+        var currBoard = new Object;
+        Object.assign(currBoard, board);
+
+        console.log(currBoard);
+
         var savPos = [-10000,-1,[-1,-1]];
 
-        if(currBoard.variables.move % 2  != 0){
+        if(currBoard.variables.move % 2 == 0){
             console.log("Failed");
             return;
         }
@@ -858,7 +862,8 @@ let board = {
                         for(var g=0;g<positions.length;g++){
 
                             //prevent modification of local function board enabling reuse for multiple moves.
-                            var tempBoard = currBoard;
+                            var tempBoard = new Object;
+                            Object.assign(tempBoard,currBoard);
 
                             //check for taken pieces
                             if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
@@ -911,7 +916,8 @@ let board = {
                                     blockingPositions++;
 
                                     //prevent modification of local function board enabling reuse for multiple moves.
-                                    var tempBoard = currBoard;
+                                    var tempBoard = new Object;
+                                    Object.assign(tempBoard,currBoard);
 
                                     //check for taken pieces
                                     if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
@@ -1034,11 +1040,12 @@ let board = {
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
                         if(currBoard.variables.initBoard[i][j]>6){
-                            var positions = currBoard.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                            var positions = currBoard.getValidPositions(currBoard.variables.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
-                                var tempBoard = currBoard;
+                                var tempBoard = new Object;
+                                Object.assign(tempBoard,currBoard);
 
                                 //check for taken pieces
                                 if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
@@ -1091,7 +1098,8 @@ let board = {
                                         blockingPositions++;
 
                                         //prevent modification of local function board enabling reuse for multiple moves.
-                                        var tempBoard = currBoard;
+                                        var tempBoard = new Object;
+                                        Object.assign(tempBoard,currBoard);
 
                                         //check for taken pieces
                                         if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
@@ -1123,7 +1131,7 @@ let board = {
                 var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
                 if(kingPositions.length == 0 && blockingPositions == 0){
                     console.log("checkmate");
-                    return -1000;
+                    return 1000;
                 }else{
                     for(var e=0;e<kingPositions.length;e++){
                         //check for taken pieces
@@ -1160,11 +1168,12 @@ let board = {
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
                         if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
-                            var positions = currBoard.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                            var positions = currBoard.getValidPositions(currBoard.variables.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
-                                var tempBoard = currBoard;
+                                var tempBoard = new Object;
+                                Object.assign(tempBoard,currBoard);
 
                                 //check for taken pieces
                                 if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
@@ -1217,7 +1226,8 @@ let board = {
                                         blockingPositions++;
 
                                         //prevent modification of local function board enabling reuse for multiple moves.
-                                        var tempBoard = currBoard;
+                                        var tempBoard = new Object;
+                                        Object.assign(tempBoard,currBoard);
 
                                         //check for taken pieces
                                         if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
@@ -1274,7 +1284,6 @@ let board = {
 
             }
         }
-        //check for checkmate value 1000
     }
 }
 
@@ -1439,6 +1448,7 @@ $(document).mousedown(function(event){
 
         board.variables.move++;
         $(mouseToCoordinates(currEvent.pageX,currEvent.pageY)).html(savSelected);
+        board.aiMoveBlack();
 
         //automatic promotion to queen
         var prom = false;
