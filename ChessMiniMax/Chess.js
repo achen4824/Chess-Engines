@@ -950,8 +950,8 @@ let board = {
                                     if( evalValue > savPos[0]){
                                         savPos[0] = evalValue;
                                         savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
-                                        savPos[2] = [i,j];
-                                        savPos[3] = [positions[g][0],positions[g][1]];
+                                        savPos[2] = [x,y];
+                                        savPos[3] = [allPositions[e][0],allPositions[e][1]];
 
                                     }
 
@@ -988,8 +988,8 @@ let board = {
                     if( evalValue > savPos[0]){
                         savPos[0] = evalValue;
                         savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
-                        savPos[2] = [i,j];
-                        savPos[3] = [positions[g][0],positions[g][1]];
+                        savPos[2] = [kingpos[0],kingpos[1]];
+                        savPos[3] = [kingPositions[e][0],kingPositions[e][1]];
                     }
                 }
             }
