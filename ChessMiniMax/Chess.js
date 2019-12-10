@@ -1,25 +1,21 @@
+//copy board script
+function clone(src){
+    var temp = Object.create(board);
+    temp.move = src.move;
+    temp.killList = [];
+    temp.initBoard = [[],[],[],[],[],[],[],[]];
 
-
-
-//for copying objects taken from https://github.com/jashkenas/underscore/blob/master/underscore.js#L1320
-//cheers
-function isObject(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-  };
-function iterationCopy(src) {
-let target = {};
-for (let prop in src) {
-    if (src.hasOwnProperty(prop)) {
-    // if the value is a nested object, recursively copy all it's properties
-    if (isObject(src[prop])) {
-        target[prop] = iterationCopy(src[prop]);
-    } else {
-        target[prop] = src[prop];
+    for(var i=0;i<src.killList.length;i++){
+        temp.killList.push(src.killList[i]);
     }
+
+    for(var x=0;x<8;x++){
+        for(var y=0;y<8;y++){
+            temp.initBoard[x].push(src.initBoard[x][y]);
+        }
     }
-}
-return target;
+
+    return temp;
 }
 
 var calc = 0;
@@ -858,7 +854,7 @@ let board = {
         //board.move++;
 
         //create a temporary board
-        var currBoard = iterationCopy(board);
+        var currBoard = clone(board);
 
         console.log(currBoard);
 
@@ -883,7 +879,7 @@ let board = {
                         for(var g=0;g<positions.length;g++){
 
                             //prevent modification of local function board enabling reuse for multiple moves.
-                            var tempBoard = iterationCopy(currBoard);
+                            var tempBoard = clone(currBoard);
 
                             //check for taken pieces
                             if(tempBoard.initBoard[positions[g][0]][positions[g][1]] != 0){
@@ -936,7 +932,7 @@ let board = {
                                     blockingPositions++;
 
                                     //prevent modification of local function board enabling reuse for multiple moves.
-                                    var tempBoard = iterationCopy(currBoard);
+                                    var tempBoard = clone(currBoard);
 
                                     //check for taken pieces
                                     if(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
@@ -1065,7 +1061,7 @@ let board = {
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
-                                var tempBoard = iterationCopy(currBoard);
+                                var tempBoard = clone(currBoard);
 
                                 //check for taken pieces
                                 if(tempBoard.initBoard[positions[g][0]][positions[g][1]] != 0){
@@ -1118,7 +1114,7 @@ let board = {
                                         blockingPositions++;
 
                                         //prevent modification of local function board enabling reuse for multiple moves.
-                                        var tempBoard = iterationCopy(currBoard);
+                                        var tempBoard = clone(currBoard);
 
                                         //check for taken pieces
                                         if(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
@@ -1192,7 +1188,7 @@ let board = {
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
-                                var tempBoard = iterationCopy(currBoard);
+                                var tempBoard = clone(currBoard);
 
                                 //check for taken pieces
                                 if(tempBoard.initBoard[positions[g][0]][positions[g][1]] != 0){
@@ -1245,7 +1241,7 @@ let board = {
                                         blockingPositions++;
 
                                         //prevent modification of local function board enabling reuse for multiple moves.
-                                        var tempBoard = iterationCopy(currBoard);
+                                        var tempBoard = clone(currBoard);
 
                                         //check for taken pieces
                                         if(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
