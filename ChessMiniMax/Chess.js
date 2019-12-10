@@ -1,25 +1,47 @@
 
 
-let board = {
-    variables: {
 
-        initBoard: [[12,9,7,8,11,7,9,12], 
-                    [10,10,10,10,10,10,10,10],
-                    [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0],
-                    [4,4,4,4,4,4,4,4],
-                    [6,3,1,2,5,1,3,6]],
-        move: 0,
-        killList: []
-        
-    },
+//for copying objects taken from https://github.com/jashkenas/underscore/blob/master/underscore.js#L1320
+//cheers
+function isObject(obj) {
+    var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
+  };
+function iterationCopy(src) {
+let target = {};
+for (let prop in src) {
+    if (src.hasOwnProperty(prop)) {
+    // if the value is a nested object, recursively copy all it's properties
+    if (isObject(src[prop])) {
+        target[prop] = iterationCopy(src[prop]);
+    } else {
+        target[prop] = src[prop];
+    }
+    }
+}
+return target;
+}
+
+var calc = 0;
+//my code starts here
+
+let board = {
+
+    initBoard: [[12,9,7,8,11,7,9,12], 
+                [10,10,10,10,10,10,10,10],
+                [0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0],
+                [4,4,4,4,4,4,4,4],
+                [6,3,1,2,5,1,3,6]],
+    move: 0,
+    killList: [],
     intializeBoard: function(){
-        for(var i = 0;i<this.variables.initBoard.length;i++){
-            for(var j = 0;j<this.variables.initBoard[i].length;j++){
-                if(this.variables.initBoard[i][j] != 0){
-                    $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/"+this.variables.initBoard[i][j]+".png'></img>");
+        for(var i = 0;i<this.initBoard.length;i++){
+            for(var j = 0;j<this.initBoard[i].length;j++){
+                if(this.initBoard[i][j] != 0){
+                    $('#'+(i+1)+'_'+(j+1)).html("<img onmousedown='return false' src='sprites/"+this.initBoard[i][j]+".png'></img>");
                 }
             }
         }
@@ -41,11 +63,11 @@ let board = {
     checkForCheck: function(){
         var attackingPieces = [];
         //check for check and mate
-        if(this.variables.move % 2 == 0){
+        if(this.move % 2 == 0){
             var kingpos;
             for(var w=0;w<8;w++){
                 for(var f=0;f<8;f++){
-                    if(this.variables.initBoard[w][f] == 8){
+                    if(this.initBoard[w][f] == 8){
                         kingpos = [w,f];
                     }
 
@@ -54,7 +76,7 @@ let board = {
 
             for(var i =0;i<8;i++){
                 for(var j=0;j<8;j++){
-                    var temp = this.variables.initBoard[i][j];
+                    var temp = this.initBoard[i][j];
                     if(temp != 0 && temp < 7){
                         var positions = this.getValidPositions(temp,i,j,false);
                         for(var t=0;t<positions.length;t++){
@@ -70,7 +92,7 @@ let board = {
             var kingpos;
             for(var w=0;w<8;w++){
                 for(var f=0;f<8;f++){
-                    if(this.variables.initBoard[w][f] == 2){
+                    if(this.initBoard[w][f] == 2){
                         kingpos = [w,f];
                     }
 
@@ -79,7 +101,7 @@ let board = {
 
             for(var i =0;i<8;i++){
                 for(var j=0;j<8;j++){
-                    var temp = this.variables.initBoard[i][j];
+                    var temp = this.initBoard[i][j];
                     if(temp != 0 && temp > 6){
                         var positions = this.getValidPositions(temp,i,j,false);
                         for(var t=0;t<positions.length;t++){
@@ -101,13 +123,13 @@ let board = {
             case 1:
                 var i =posX+1,j=posY+1;
                 while(i<8 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -118,13 +140,13 @@ let board = {
                 }
                 var i =posX+1,j=posY-1;
                 while(i<8 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -135,13 +157,13 @@ let board = {
                 }
                 var i =posX-1,j=posY-1;
                 while(i>=0 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -152,13 +174,13 @@ let board = {
                 }
                 var i =posX-1,j=posY+1;
                 while(i>=0 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -172,38 +194,38 @@ let board = {
             case 2:
                 //get possible movement positions 
                 if(posY+1 < 8){
-                    if(this.variables.initBoard[posX][posY+1] > 6 || this.variables.initBoard[posX][posY+1] == 0){
+                    if(this.initBoard[posX][posY+1] > 6 || this.initBoard[posX][posY+1] == 0){
                         returnValues.push([posX,posY+1]);
                     }
-                    if(posX+1<8 && (this.variables.initBoard[posX+1][posY+1] > 6 || this.variables.initBoard[posX+1][posY+1] == 0)){
+                    if(posX+1<8 && (this.initBoard[posX+1][posY+1] > 6 || this.initBoard[posX+1][posY+1] == 0)){
                         returnValues.push([posX+1,posY+1]);
                     }
-                    if(posX-1>=0 && (this.variables.initBoard[posX-1][posY+1] > 6 || this.variables.initBoard[posX-1][posY+1] == 0)){
+                    if(posX-1>=0 && (this.initBoard[posX-1][posY+1] > 6 || this.initBoard[posX-1][posY+1] == 0)){
                         returnValues.push([posX-1,posY+1]);
                     }
                 }
                 if(posY-1 >= 0){
-                    if(this.variables.initBoard[posX][posY-1] > 6 || this.variables.initBoard[posX][posY-1] == 0){
+                    if(this.initBoard[posX][posY-1] > 6 || this.initBoard[posX][posY-1] == 0){
                         returnValues.push([posX,posY-1]);
                     }
-                    if(posX+1<8 && (this.variables.initBoard[posX+1][posY-1] > 6 || this.variables.initBoard[posX+1][posY-1] == 0)){
+                    if(posX+1<8 && (this.initBoard[posX+1][posY-1] > 6 || this.initBoard[posX+1][posY-1] == 0)){
                         returnValues.push([posX+1,posY-1]);
                     }
-                    if(posX-1>=0 && (this.variables.initBoard[posX-1][posY-1] > 6 || this.variables.initBoard[posX-1][posY-1] == 0)){
+                    if(posX-1>=0 && (this.initBoard[posX-1][posY-1] > 6 || this.initBoard[posX-1][posY-1] == 0)){
                         returnValues.push([posX-1,posY-1]);
                     }
                 }
-                if(posX-1 >=0 && (this.variables.initBoard[posX-1][posY] > 6 || this.variables.initBoard[posX-1][posY] == 0)){
+                if(posX-1 >=0 && (this.initBoard[posX-1][posY] > 6 || this.initBoard[posX-1][posY] == 0)){
                     returnValues.push([posX-1,posY]);
                 }
-                if(posX+1 < 8 && (this.variables.initBoard[posX+1][posY] > 6 || this.variables.initBoard[posX+1][posY] == 0)){
+                if(posX+1 < 8 && (this.initBoard[posX+1][posY] > 6 || this.initBoard[posX+1][posY] == 0)){
                     returnValues.push([posX+1,posY]);
                 }
 
                 //find movements into check so many for loops yikes
                 for(var f =0;f<8;f++){
                     for(var t=0;t<8;t++){
-                        var temp = this.variables.initBoard[f][t];
+                        var temp = this.initBoard[f][t];
                         if(temp > 6){
                             var tempPositions = [];
                             
@@ -247,7 +269,7 @@ let board = {
                         m=1;
                     }
                     if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
-                        if(this.variables.initBoard[posX+m][posY+n] == 0 || this.variables.initBoard[posX+m][posY+n] > 6){
+                        if(this.initBoard[posX+m][posY+n] == 0 || this.initBoard[posX+m][posY+n] > 6){
                             returnValues.push([posX+m,posY+n]);
                         }
                     }
@@ -255,16 +277,16 @@ let board = {
                 return returnValues;
                 break;
             case 4:
-                if(this.variables.initBoard[posX-1][posY] == 0){
+                if(this.initBoard[posX-1][posY] == 0){
                     returnValues.push([posX-1,posY]);
                 }
-                if(this.variables.initBoard[posX-1][posY+1] > 6){
+                if(this.initBoard[posX-1][posY+1] > 6){
                     returnValues.push([posX-1,posY+1]);
                 }
-                if(this.variables.initBoard[posX-1][posY-1] > 6){
+                if(this.initBoard[posX-1][posY-1] > 6){
                     returnValues.push([posX-1,posY-1]);
                 }
-                if(posX == 6 && (this.variables.initBoard[posX-2][posY] == 0) && (this.variables.initBoard[posX-1][posY] == 0)){
+                if(posX == 6 && (this.initBoard[posX-2][posY] == 0) && (this.initBoard[posX-1][posY] == 0)){
                     returnValues.push([posX-2,posY]);
                 }
                 return returnValues;
@@ -272,13 +294,13 @@ let board = {
             case 5:
                 //also add functionality for taking
                 for(var i=posY+1;i<8;i++){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] > 6){
+                            if(this.initBoard[posX][i] > 6){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -286,13 +308,13 @@ let board = {
                     }
                 }
                 for(var i=posY-1;i>=0;i--){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] > 6){
+                            if(this.initBoard[posX][i] > 6){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -300,13 +322,13 @@ let board = {
                     }
                 }
                 for(var i=posX+1;i<8;i++){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] > 6){
+                            if(this.initBoard[i][posY] > 6){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -314,13 +336,13 @@ let board = {
                     }
                 }
                 for(var i=posX-1;i>=0;i--){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] > 6){
+                            if(this.initBoard[i][posY] > 6){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -329,13 +351,13 @@ let board = {
                 }
                 var i =posX+1,j=posY+1;
                 while(i<8 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -346,13 +368,13 @@ let board = {
                 }
                 var i =posX+1,j=posY-1;
                 while(i<8 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -363,13 +385,13 @@ let board = {
                 }
                 var i =posX-1,j=posY-1;
                 while(i>=0 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -380,13 +402,13 @@ let board = {
                 }
                 var i =posX-1,j=posY+1;
                 while(i>=0 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] > 6){
+                            if(this.initBoard[i][j] > 6){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -400,13 +422,13 @@ let board = {
             case 6:
                 //also add functionality for taking
                 for(var i=posY+1;i<8;i++){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] > 6){
+                            if(this.initBoard[posX][i] > 6){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -414,13 +436,13 @@ let board = {
                     }
                 }
                 for(var i=posY-1;i>=0;i--){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] > 6){
+                            if(this.initBoard[posX][i] > 6){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -428,13 +450,13 @@ let board = {
                     }
                 }
                 for(var i=posX+1;i<8;i++){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] > 6){
+                            if(this.initBoard[i][posY] > 6){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -442,13 +464,13 @@ let board = {
                     }
                 }
                 for(var i=posX-1;i>=0;i--){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] > 6){
+                            if(this.initBoard[i][posY] > 6){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -460,13 +482,13 @@ let board = {
             case 7:
                 var i =posX+1,j=posY+1;
                 while(i<8 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -477,13 +499,13 @@ let board = {
                 }
                 var i =posX+1,j=posY-1;
                 while(i<8 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -494,13 +516,13 @@ let board = {
                 }
                 var i =posX-1,j=posY-1;
                 while(i>=0 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -511,13 +533,13 @@ let board = {
                 }
                 var i =posX-1,j=posY+1;
                 while(i>=0 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -531,42 +553,42 @@ let board = {
             case 8:
                 //get possible movement positions 
                 if(posY+1 < 8){
-                    if(this.variables.initBoard[posX][posY+1] < 7){
+                    if(this.initBoard[posX][posY+1] < 7){
                         returnValues.push([posX,posY+1]);
                     }
                     if(posX+1<8){
-                        if(this.variables.initBoard[posX+1][posY+1] < 7){
+                        if(this.initBoard[posX+1][posY+1] < 7){
                             returnValues.push([posX+1,posY+1]);
                         }
                     }
                     if(posX-1>=0){
-                        if(this.variables.initBoard[posX-1][posY+1] < 7){
+                        if(this.initBoard[posX-1][posY+1] < 7){
                             returnValues.push([posX-1,posY+1]);
                         }
                     }
                 }
                 if(posY-1 >= 0){
-                    if(this.variables.initBoard[posX][posY-1] < 7){
+                    if(this.initBoard[posX][posY-1] < 7){
                         returnValues.push([posX,posY-1]);
                     }
                     if(posX+1<8){
-                        if(this.variables.initBoard[posX+1][posY-1] < 7){
+                        if(this.initBoard[posX+1][posY-1] < 7){
                             returnValues.push([posX+1,posY-1]);
                         }
                     }
                     if(posX-1>=0){
-                        if(this.variables.initBoard[posX-1][posY-1] < 7){
+                        if(this.initBoard[posX-1][posY-1] < 7){
                             returnValues.push([posX-1,posY-1]);
                         }
                     }
                 }
                 if(posX-1 >=0){
-                    if(this.variables.initBoard[posX-1][posY] < 7){
+                    if(this.initBoard[posX-1][posY] < 7){
                         returnValues.push([posX-1,posY]);
                     }
                 }
                 if(posX+1 < 8){
-                    if(this.variables.initBoard[posX+1][posY] < 7){
+                    if(this.initBoard[posX+1][posY] < 7){
                         returnValues.push([posX+1,posY]);
                     }
                 }
@@ -574,7 +596,7 @@ let board = {
                 //find movements into check so many for loops yikes
                 for(var f =0;f<8;f++){
                     for(var t=0;t<8;t++){
-                        var temp = this.variables.initBoard[f][t];
+                        var temp = this.initBoard[f][t];
                         if(temp < 7 && temp > 0){
                             var tempPositions = [];
 
@@ -620,7 +642,7 @@ let board = {
                             m=1;
                         }
                         if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
-                            if(this.variables.initBoard[posX+m][posY+n] == 0 || this.variables.initBoard[posX+m][posY+n] < 7){
+                            if(this.initBoard[posX+m][posY+n] == 0 || this.initBoard[posX+m][posY+n] < 7){
                                 returnValues.push([posX+m,posY+n]);
                             }
                         }
@@ -628,16 +650,16 @@ let board = {
                     return returnValues;
                     break;
             case 10:
-                    if(this.variables.initBoard[posX+1][posY] == 0){
+                    if(posX+1 < 8 && this.initBoard[posX+1][posY] == 0){
                         returnValues.push([posX+1,posY]);
                     }
-                    if(this.variables.initBoard[posX+1][posY+1] <7 && this.variables.initBoard[posX+1][posY+1] != 0){
+                    if(posX+1 < 8 && posY + 1 < 8 && this.initBoard[posX+1][posY+1] <7 && this.initBoard[posX+1][posY+1] != 0){
                         returnValues.push([posX+1,posY+1]);
                     }
-                    if(this.variables.initBoard[posX+1][posY-1] <7 && this.variables.initBoard[posX+1][posY-1] != 0){
+                    if(posX+1 < 8 && posY - 1 >= 0 && this.initBoard[posX+1][posY-1] <7 && this.initBoard[posX+1][posY-1] != 0){
                         returnValues.push([posX+1,posY-1]);
                     }
-                    if(posX == 1 && this.variables.initBoard[posX+2][posY] == 0 &&  (this.variables.initBoard[posX+1][posY] == 0)){
+                    if(posX == 1 && this.initBoard[posX+2][posY] == 0 &&  (this.initBoard[posX+1][posY] == 0)){
                         returnValues.push([posX+2,posY]);
                     }
                     return returnValues;
@@ -645,13 +667,13 @@ let board = {
             case 11:
                 //also add functionality for taking
                 for(var i=posY+1;i<8;i++){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] < 7){
+                            if(this.initBoard[posX][i] < 7){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -659,13 +681,13 @@ let board = {
                     }
                 }
                 for(var i=posY-1;i>=0;i--){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] < 7){
+                            if(this.initBoard[posX][i] < 7){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -673,13 +695,13 @@ let board = {
                     }
                 }
                 for(var i=posX+1;i<8;i++){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] < 7){
+                            if(this.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -687,13 +709,13 @@ let board = {
                     }
                 }
                 for(var i=posX-1;i>=0;i--){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] < 7){
+                            if(this.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -702,13 +724,13 @@ let board = {
                 }
                 var i =posX+1,j=posY+1;
                 while(i<8 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -719,13 +741,13 @@ let board = {
                 }
                 var i =posX+1,j=posY-1;
                 while(i<8 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -736,13 +758,13 @@ let board = {
                 }
                 var i =posX-1,j=posY-1;
                 while(i>=0 && j>=0){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -753,13 +775,13 @@ let board = {
                 }
                 var i =posX-1,j=posY+1;
                 while(i>=0 && j<8){
-                    if(this.variables.initBoard[i][j] == 0){
+                    if(this.initBoard[i][j] == 0){
                         returnValues.push([i,j]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,j]);
                         }else{
-                            if(this.variables.initBoard[i][j] < 7){
+                            if(this.initBoard[i][j] < 7){
                                 returnValues.push([i,j]);
                             }
                         }
@@ -773,13 +795,13 @@ let board = {
             case 12:
                 //also add functionality for taking
                 for(var i=posY+1;i<8;i++){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] < 7){
+                            if(this.initBoard[posX][i] < 7){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -787,13 +809,13 @@ let board = {
                     }
                 }
                 for(var i=posY-1;i>=0;i--){
-                    if(this.variables.initBoard[posX][i] == 0){
+                    if(this.initBoard[posX][i] == 0){
                         returnValues.push([posX,i]);
                     }else{
                         if(attack===true){
                             returnValues.push([posX,i]);
                         }else{
-                            if(this.variables.initBoard[posX][i] < 7){
+                            if(this.initBoard[posX][i] < 7){
                                 returnValues.push([posX,i]);
                             }
                         }
@@ -801,13 +823,13 @@ let board = {
                     }
                 }
                 for(var i=posX+1;i<8;i++){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] < 7){
+                            if(this.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -815,13 +837,13 @@ let board = {
                     }
                 }
                 for(var i=posX-1;i>=0;i--){
-                    if(this.variables.initBoard[i][posY] == 0){
+                    if(this.initBoard[i][posY] == 0){
                         returnValues.push([i,posY]);
                     }else{
                         if(attack===true){
                             returnValues.push([i,posY]);
                         }else{
-                            if(this.variables.initBoard[i][posY] < 7){
+                            if(this.initBoard[i][posY] < 7){
                                 returnValues.push([i,posY]);
                             }
                         }
@@ -833,17 +855,16 @@ let board = {
         }
     },
     aiMoveBlack: function(){
-        //board.variables.move++;
+        //board.move++;
 
         //create a temporary board
-        var currBoard = new Object;
-        Object.assign(currBoard, board);
+        var currBoard = iterationCopy(board);
 
         console.log(currBoard);
 
         var savPos = [-10000,-1,[-1,-1]];
 
-        if(currBoard.variables.move % 2 == 0){
+        if(currBoard.move % 2 == 0){
             console.log("Failed");
             return;
         }
@@ -857,29 +878,28 @@ let board = {
             //code for all moves
             for(var i = 0;i<8;i++){
                 for(var j = 0;j<8;j++){
-                    if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
-                        var positions = currBoard.getValidPositions(board.variables.initBoard[i][j],i,j,false);
+                    if(currBoard.initBoard[i][j]<7 && currBoard.initBoard[i][j] != 0){
+                        var positions = currBoard.getValidPositions(board.initBoard[i][j],i,j,false);
                         for(var g=0;g<positions.length;g++){
 
                             //prevent modification of local function board enabling reuse for multiple moves.
-                            var tempBoard = new Object;
-                            Object.assign(tempBoard,currBoard);
+                            var tempBoard = iterationCopy(currBoard);
 
                             //check for taken pieces
-                            if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
-                                tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
+                            if(tempBoard.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                tempBoard.killList.push(tempBoard.initBoard[positions[g][0]][positions[g][1]]);
                             }
 
                             //complete the move
-                            tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
-                            tempBoard.variables.initBoard[i][j] = 0;
-                            tempBoard.variables.move++;
+                            tempBoard.initBoard[positions[g][0]][positions[g][1]] = tempBoard.initBoard[i][j];
+                            tempBoard.initBoard[i][j] = 0;
+                            tempBoard.move++;
 
                             //evaluate the tree descent value
-                            var evalValue = board.recursiveTreeDescent(tempBoard,2);
+                            var evalValue = board.recursiveTreeDescent(tempBoard,1);
                             if( evalValue > savPos[0]){
                                 savPos[0] = evalValue;
-                                savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
                                 savPos[2] = [positions[g][0],positions[g][1]];
 
                             }
@@ -896,7 +916,7 @@ let board = {
             //get king position
             for(var w=0;w<8;w++){
                 for(var f=0;f<8;f++){
-                    if(currBoard.variables.initBoard[w][f] == 2){
+                    if(currBoard.initBoard[w][f] == 2){
                         kingpos = [w,f];
                     }
 
@@ -908,32 +928,31 @@ let board = {
                 //for all black pieces check if they can block
                 for(var x=0;x<8;x++){
                     for(var y=0;y<8;y++){
-                        if(currBoard.variables.initBoard[x][y] < 7 && currBoard.variables.initBoard[x][y] != 0){
-                            var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                        if(currBoard.initBoard[x][y] < 7 && currBoard.initBoard[x][y] != 0){
+                            var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false);
                             for(var e=0;e<allPositions.length;e++){
                                 if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
                                     
                                     blockingPositions++;
 
                                     //prevent modification of local function board enabling reuse for multiple moves.
-                                    var tempBoard = new Object;
-                                    Object.assign(tempBoard,currBoard);
+                                    var tempBoard = iterationCopy(currBoard);
 
                                     //check for taken pieces
-                                    if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
-                                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
+                                    if(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                        tempBoard.killList.push(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]]);
                                     }
 
                                     //complete the move
-                                    tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
-                                    tempBoard.variables.initBoard[x][y] = 0;
-                                    tempBoard.variables.move++;
+                                    tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.initBoard[x][y];
+                                    tempBoard.initBoard[x][y] = 0;
+                                    tempBoard.move++;
 
                                     //evaluate the tree descent value
-                                    var evalValue = board.recursiveTreeDescent(tempBoard,2);
+                                    var evalValue = board.recursiveTreeDescent(tempBoard,1);
                                     if( evalValue > savPos[0]){
                                         savPos[0] = evalValue;
-                                        savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                        savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
                                         savPos[2] = [allPositions[e][0],allPositions[e][1]];
 
                                     }
@@ -946,27 +965,27 @@ let board = {
             }
 
             //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-            var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+            var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
             if(kingPositions.length == 0 && blockingPositions == 0){
                 console.log("checkmate");
                 return -1000;
             }else{
                 for(var e=0;e<kingPositions.length;e++){
                     //check for taken pieces
-                    if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
-                        tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                    if(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                        tempBoard.killList.push(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
                     }
 
                     //complete the move
-                    tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
-                    tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
-                    tempBoard.variables.move++;
+                    tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.initBoard[kingpos[0]][kingpos[1]];
+                    tempBoard.initBoard[kingpos[0]][kingpos[1]] = 0;
+                    tempBoard.move++;
 
                     //evaluate the tree descent value
-                    var evalValue = board.recursiveTreeDescent(tempBoard,2);
+                    var evalValue = board.recursiveTreeDescent(tempBoard,1);
                     if( evalValue > savPos[0]){
                         savPos[0] = evalValue;
-                        savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                        savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
                         savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
                     }
                 }
@@ -980,13 +999,15 @@ let board = {
     },
     recursiveTreeDescent: function(currBoard,depth){
         depth--;
-        
+        calc++;
+        console.log(calc);
+        console.log(currBoard.initBoard);
 
         //check end of tree return values of depth
         if(depth == 0){
             var sum = 0;
-            for(var i =0;i<currBoard.variables.killList.length;i++){
-                switch (currBoard.variables.killList[i]){
+            for(var i =0;i<currBoard.killList.length;i++){
+                switch (currBoard.killList[i]){
                     case 1:
                         sum -= 3;
                         break;
@@ -1030,7 +1051,7 @@ let board = {
         }
 
         //minimize
-        if(currBoard.variables.move % 2 == 0){
+        if(currBoard.move % 2 == 0){
             var savPos = [10000,-1,[-1,-1]];
             //check if in check
             var attackingPieces = currBoard.checkForCheck();
@@ -1039,29 +1060,28 @@ let board = {
                 //code for all moves
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
-                        if(currBoard.variables.initBoard[i][j]>6){
-                            var positions = currBoard.getValidPositions(currBoard.variables.initBoard[i][j],i,j,false);
+                        if(currBoard.initBoard[i][j]>6){
+                            var positions = currBoard.getValidPositions(currBoard.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
-                                var tempBoard = new Object;
-                                Object.assign(tempBoard,currBoard);
+                                var tempBoard = iterationCopy(currBoard);
 
                                 //check for taken pieces
-                                if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
-                                    tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
+                                if(tempBoard.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                    tempBoard.killList.push(tempBoard.initBoard[positions[g][0]][positions[g][1]]);
                                 }
 
                                 //complete the move
-                                tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
-                                tempBoard.variables.initBoard[i][j] = 0;
-                                tempBoard.variables.move++;
+                                tempBoard.initBoard[positions[g][0]][positions[g][1]] = tempBoard.initBoard[i][j];
+                                tempBoard.initBoard[i][j] = 0;
+                                tempBoard.move++;
 
                                 //evaluate the tree descent value
                                 var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                                 if( evalValue < savPos[0]){
                                     savPos[0] = evalValue;
-                                    savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                    savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
                                     savPos[2] = [positions[g][0],positions[g][1]];
 
                                 }
@@ -1078,7 +1098,7 @@ let board = {
                 //get king position
                 for(var w=0;w<8;w++){
                     for(var f=0;f<8;f++){
-                        if(currBoard.variables.initBoard[w][f] == 8){
+                        if(currBoard.initBoard[w][f] == 8){
                             kingpos = [w,f];
                         }
 
@@ -1090,32 +1110,31 @@ let board = {
                     //for all black pieces check if they can block
                     for(var x=0;x<8;x++){
                         for(var y=0;y<8;y++){
-                            if(currBoard.variables.initBoard[x][y] > 6){
-                                var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                            if(currBoard.initBoard[x][y] > 6){
+                                var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false);
                                 for(var e=0;e<allPositions.length;e++){
                                     if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
                                         
                                         blockingPositions++;
 
                                         //prevent modification of local function board enabling reuse for multiple moves.
-                                        var tempBoard = new Object;
-                                        Object.assign(tempBoard,currBoard);
+                                        var tempBoard = iterationCopy(currBoard);
 
                                         //check for taken pieces
-                                        if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
-                                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
+                                        if(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                            tempBoard.killList.push(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]]);
                                         }
 
                                         //complete the move
-                                        tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
-                                        tempBoard.variables.initBoard[x][y] = 0;
-                                        tempBoard.variables.move++;
+                                        tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.initBoard[x][y];
+                                        tempBoard.initBoard[x][y] = 0;
+                                        tempBoard.move++;
 
                                         //evaluate the tree descent value
                                         var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                                         if( evalValue < savPos[0]){
                                             savPos[0] = evalValue;
-                                            savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                            savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
                                             savPos[2] = [allPositions[e][0],allPositions[e][1]];
 
                                         }
@@ -1128,33 +1147,34 @@ let board = {
                 }
 
                 //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-                var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
                 if(kingPositions.length == 0 && blockingPositions == 0){
                     console.log("checkmate");
                     return 1000;
                 }else{
                     for(var e=0;e<kingPositions.length;e++){
                         //check for taken pieces
-                        if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
-                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                        if(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                            tempBoard.killList.push(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
                         }
 
                         //complete the move
-                        tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
-                        tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
-                        tempBoard.variables.move++;
+                        tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.initBoard[kingpos[0]][kingpos[1]];
+                        tempBoard.initBoard[kingpos[0]][kingpos[1]] = 0;
+                        tempBoard.move++;
 
                         //evaluate the tree descent value
                         var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                         if( evalValue > savPos[0]){
                             savPos[0] = evalValue;
-                            savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                            savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
                             savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
                         }
                     }
                 }
 
             }
+            return savPos[0];
         }
         //maximise 
         //yuck code duplication
@@ -1167,29 +1187,28 @@ let board = {
                 //code for all moves
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
-                        if(currBoard.variables.initBoard[i][j]<7 && currBoard.variables.initBoard[i][j] != 0){
-                            var positions = currBoard.getValidPositions(currBoard.variables.initBoard[i][j],i,j,false);
+                        if(currBoard.initBoard[i][j]<7 && currBoard.initBoard[i][j] != 0){
+                            var positions = currBoard.getValidPositions(currBoard.initBoard[i][j],i,j,false);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
-                                var tempBoard = new Object;
-                                Object.assign(tempBoard,currBoard);
+                                var tempBoard = iterationCopy(currBoard);
 
                                 //check for taken pieces
-                                if(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] != 0){
-                                    tempBoard.variables.killList.push(tempBoard.variables.initBoard[positions[g][0]][positions[g][1]]);
+                                if(tempBoard.initBoard[positions[g][0]][positions[g][1]] != 0){
+                                    tempBoard.killList.push(tempBoard.initBoard[positions[g][0]][positions[g][1]]);
                                 }
 
                                 //complete the move
-                                tempBoard.variables.initBoard[positions[g][0]][positions[g][1]] = tempBoard.variables.initBoard[i][j];
-                                tempBoard.variables.initBoard[i][j] = 0;
-                                tempBoard.variables.move++;
+                                tempBoard.initBoard[positions[g][0]][positions[g][1]] = tempBoard.initBoard[i][j];
+                                tempBoard.initBoard[i][j] = 0;
+                                tempBoard.move++;
 
                                 //evaluate the tree descent value
                                 var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                                 if( evalValue > savPos[0]){
                                     savPos[0] = evalValue;
-                                    savPos[1] = tempBoard.variables.initBoard[positions[g][0]][positions[g][1]];
+                                    savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
                                     savPos[2] = [positions[g][0],positions[g][1]];
 
                                 }
@@ -1206,7 +1225,7 @@ let board = {
                 //get king position
                 for(var w=0;w<8;w++){
                     for(var f=0;f<8;f++){
-                        if(currBoard.variables.initBoard[w][f] == 2){
+                        if(currBoard.initBoard[w][f] == 2){
                             kingpos = [w,f];
                         }
 
@@ -1218,32 +1237,31 @@ let board = {
                     //for all black pieces check if they can block
                     for(var x=0;x<8;x++){
                         for(var y=0;y<8;y++){
-                            if(currBoard.variables.initBoard[x][y] < 7 && currBoard.variables.initBoard[x][y] != 0){
-                                var allPositions = currBoard.getValidPositions(currBoard.variables.initBoard[x][y],x,y,false);
+                            if(currBoard.initBoard[x][y] < 7 && currBoard.initBoard[x][y] != 0){
+                                var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false);
                                 for(var e=0;e<allPositions.length;e++){
                                     if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
                                         
                                         blockingPositions++;
 
                                         //prevent modification of local function board enabling reuse for multiple moves.
-                                        var tempBoard = new Object;
-                                        Object.assign(tempBoard,currBoard);
+                                        var tempBoard = iterationCopy(currBoard);
 
                                         //check for taken pieces
-                                        if(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
-                                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]]);
+                                        if(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] != 0){
+                                            tempBoard.killList.push(tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]]);
                                         }
 
                                         //complete the move
-                                        tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.variables.initBoard[x][y];
-                                        tempBoard.variables.initBoard[x][y] = 0;
-                                        tempBoard.variables.move++;
+                                        tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]] = tempBoard.initBoard[x][y];
+                                        tempBoard.initBoard[x][y] = 0;
+                                        tempBoard.move++;
 
                                         //evaluate the tree descent value
                                         var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                                         if( evalValue > savPos[0]){
                                             savPos[0] = evalValue;
-                                            savPos[1] = tempBoard.variables.initBoard[allPositions[e][0]][allPositions[e][1]];
+                                            savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
                                             savPos[2] = [allPositions[e][0],allPositions[e][1]];
 
                                         }
@@ -1256,33 +1274,34 @@ let board = {
                 }
 
                 //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-                var kingPositions = currBoard.getValidPositions(currBoard.variables.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
                 if(kingPositions.length == 0 && blockingPositions == 0){
                     console.log("checkmate");
                     return -1000;
                 }else{
                     for(var e=0;e<kingPositions.length;e++){
                         //check for taken pieces
-                        if(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
-                            tempBoard.variables.killList.push(tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
+                        if(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] != 0){
+                            tempBoard.killList.push(tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]]);
                         }
 
                         //complete the move
-                        tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.variables.initBoard[kingpos[0]][kingpos[1]];
-                        tempBoard.variables.initBoard[kingpos[0]][kingpos[1]] = 0;
-                        tempBoard.variables.move++;
+                        tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]] = tempBoard.initBoard[kingpos[0]][kingpos[1]];
+                        tempBoard.initBoard[kingpos[0]][kingpos[1]] = 0;
+                        tempBoard.move++;
 
                         //evaluate the tree descent value
                         var evalValue = board.recursiveTreeDescent(tempBoard,depth);
                         if( evalValue > savPos[0]){
                             savPos[0] = evalValue;
-                            savPos[1] = tempBoard.variables.initBoard[kingPositions[e][0]][kingPositions[e][1]];
+                            savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
                             savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
                         }
                     }
                 }
 
             }
+            return savPos[0];
         }
     }
 }
@@ -1307,30 +1326,26 @@ $(document).mousedown(function(event){
     var currentMousePos = { x: -1, y: -1 };
     currentMousePos.x = event.pageX;
     currentMousePos.y = event.pageY;
-
-
     var gameCell = $(mouseToCoordinates(event.pageX,event.pageY))[0];
     if(mouseToCoordinates(event.pageX,event.pageY) == -1){
         return;
     }
-
     coX = board.getX(currentMousePos.x);
     coY = board.getY(currentMousePos.y);
-
     //checking before allowing move
     //check white or black to move
-    if(board.variables.move % 2 == 0 && board.variables.initBoard[coY][coX] < 7 && board.variables.initBoard[coY][coX] !=0 ){
+    if(board.move % 2 == 0 && board.initBoard[coY][coX] < 7 && board.initBoard[coY][coX] !=0 ){
         return;
-    }else if(board.variables.move % 2 == 1 && board.variables.initBoard[coY][coX] > 6){
+    }else if(board.move % 2 == 1 && board.initBoard[coY][coX] > 6){
         return;
     }
 
     //checking inside the grid
     if(coX != -1 && coY != -1){
-        if(board.variables.initBoard[coY][coX] == 0){
+        if(board.initBoard[coY][coX] == 0){
             return;
         }else{
-            allPositions = board.getValidPositions(board.variables.initBoard[coY][coX],coY,coX,false);
+            allPositions = board.getValidPositions(board.initBoard[coY][coX],coY,coX,false);
         }
     }else{
         return;
@@ -1342,10 +1357,10 @@ $(document).mousedown(function(event){
     if(attackingPieces.length > 0){
         var pass = false;
         var kingpos;
-        if(board.variables.move % 2 == 0){
+        if(board.move % 2 == 0){
             for(var w=0;w<8;w++){
                 for(var f=0;f<8;f++){
-                    if(board.variables.initBoard[w][f] == 8){
+                    if(board.initBoard[w][f] == 8){
                         kingpos = [w,f];
                     }
 
@@ -1354,7 +1369,7 @@ $(document).mousedown(function(event){
         }else{
             for(var w=0;w<8;w++){
                 for(var f=0;f<8;f++){
-                    if(board.variables.initBoard[w][f] == 2){
+                    if(board.initBoard[w][f] == 2){
                         kingpos = [w,f];
                     }
 
@@ -1362,7 +1377,7 @@ $(document).mousedown(function(event){
             }
         }
 
-        //board.variables.initBoard[coX][coY]
+        //board.initBoard[coX][coY]
         //check if we can block
         console.log("in check");
         if(attackingPieces.length < 2 && attackingPieces[0][0] != 3 && attackingPieces[0][0] != 9){
@@ -1377,7 +1392,7 @@ $(document).mousedown(function(event){
         }
         if(blockingPositions.length == 0){
             //cant block must move king
-            if(board.variables.initBoard[coY][coX] == 8 || board.variables.initBoard[coY][coX] == 2){
+            if(board.initBoard[coY][coX] == 8 || board.initBoard[coY][coX] == 2){
                 if(allPositions.length != 0){
                     blockingPositions = allPositions;
                     pass = true;
@@ -1410,6 +1425,7 @@ $(document).mousedown(function(event){
 
 
 }).mousemove(function(currEvent){
+
     if(!mdown){
         return;
     }
@@ -1438,27 +1454,28 @@ $(document).mousedown(function(event){
     //first check if inside box
     if((((currEvent.pageY-(currEvent.pageY%48))/48 < 8 && (currEvent.pageX-(currEvent.pageX%48))/48 < 8))&&found){
         //check for capture
-        if(board.variables.initBoard[relY][relX]  != 0){
-            board.variables.killList.push(board.variables.initBoard[relY][relX]);
+        if(board.initBoard[relY][relX]  != 0){
+            board.killList.push(board.initBoard[relY][relX]);
         }
 
         //change board values
-        board.variables.initBoard[relY][relX] = board.variables.initBoard[coY][coX];
-        board.variables.initBoard[coY][coX] = 0;
+        board.initBoard[relY][relX] = board.initBoard[coY][coX];
+        board.initBoard[coY][coX] = 0;
 
-        board.variables.move++;
+        board.move++;
+        console.log(board.initBoard);
         $(mouseToCoordinates(currEvent.pageX,currEvent.pageY)).html(savSelected);
         board.aiMoveBlack();
 
         //automatic promotion to queen
         var prom = false;
-        if((relY == 7 && board.variables.initBoard[relY][relX] == 10)){
+        if((relY == 7 && board.initBoard[relY][relX] == 10)){
             prom =true;
-            board.variables.initBoard[relY][relX] = 11;
+            board.initBoard[relY][relX] = 11;
         }
-        if((relY == 0 && board.variables.initBoard[relY][relX] == 4)){
+        if((relY == 0 && board.initBoard[relY][relX] == 4)){
             prom = true;
-            board.variables.initBoard[relY][relX] = 5;
+            board.initBoard[relY][relX] = 5;
         }
         if(prom){
             board.intializeBoard();
@@ -1491,6 +1508,7 @@ $(document).mousedown(function(event){
 
 $(document).ready(function() {
     board.intializeBoard();
+    console.log(board.initBoard);
     //var arr = board.getValidPositions(11,7,0);
     //for(var i=0;i<arr.length;i++){
         //$('#'+(arr[i][0]+1)+'_'+(arr[i][1]+1)).addClass("highlight");
