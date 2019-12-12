@@ -113,6 +113,46 @@ let board = {
         }
         return attackingPieces;
     },
+    //there is a better method
+    checkForBlock: function(poX,poY,allPositions){
+        var returnValue = [];
+
+        //check if new move creates check
+        var kingValue;
+        var kingpos = [];
+        if(this.move % 2 == 0){
+            kingValue = 8;
+        }else{
+            kingValue = 2;
+        }
+
+        for(var x = 0;x < 8;x++){
+            for(var y=0;y<8;y++){
+                if(this.initBoard[x][y]==kingValue){
+                    kingpos = [x,y];
+                    break;
+                }
+            }
+        }
+
+        var kingvector;
+        
+        if (Math.abs(kingpos[0] - poX) == Math.abs(kingpos[1] - poY) || (kingpos[0] - poX)*(kingpos[1] - poY) == 0){
+            kingvector = [(kingpos[0] - poX)/Math.abs(kingpos[0] - poX),(kingpos[1] - poY)/Math.abs(kingpos[1] - poY)];
+        }
+
+        for(var i=0;i<allPositions.length;i++){
+            var tempBoard = clone(this);
+
+            //run move
+            tempBoard.initBoard[allPositions[i][0]][allPositions[i][1]] = tempBoard.initBoard[poX][poY];
+            tempBoard.initBoard[poX][poY] = 0;
+
+            
+
+        }
+        return returnValue;
+    },
     //all piece logic for positions
     getValidPositions: function(piece,posX,posY,attack){
 
@@ -187,7 +227,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 2:
                 //get possible movement positions 
@@ -249,7 +289,7 @@ let board = {
                         }
                     }
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 3:
                 //horse movement is a thing of beauty
@@ -272,22 +312,22 @@ let board = {
                         }
                     }
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 4:
-                if(this.initBoard[posX-1][posY] == 0){
+                if(posX-1 >= 0 && this.initBoard[posX-1][posY] == 0){
                     returnValues.push([posX-1,posY]);
                 }
-                if(this.initBoard[posX-1][posY+1] > 6){
+                if(posX-1 >= 0 && posY + 1 < 8  && this.initBoard[posX-1][posY+1] > 6){
                     returnValues.push([posX-1,posY+1]);
                 }
-                if(this.initBoard[posX-1][posY-1] > 6){
+                if(posX-1 >= 0 && posY - 1 >= 0  && this.initBoard[posX-1][posY-1] > 6){
                     returnValues.push([posX-1,posY-1]);
                 }
                 if(posX == 6 && (this.initBoard[posX-2][posY] == 0) && (this.initBoard[posX-1][posY] == 0)){
                     returnValues.push([posX-2,posY]);
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 5:
                 //also add functionality for taking
@@ -415,7 +455,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
             break;
             case 6:
                 //also add functionality for taking
@@ -475,7 +515,7 @@ let board = {
                         break;
                     }
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 7:
                 var i =posX+1,j=posY+1;
@@ -546,7 +586,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 8:
                 //get possible movement positions 
@@ -622,7 +662,7 @@ let board = {
                         }
                     }
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
             case 9:
                     //horse movement is a thing of beauty
@@ -645,7 +685,7 @@ let board = {
                             }
                         }
                     }
-                    return returnValues;
+                    return this.checkForBlock(posX,posY,returnValues);
                     break;
             case 10:
                     if(posX+1 < 8 && this.initBoard[posX+1][posY] == 0){
@@ -660,7 +700,7 @@ let board = {
                     if(posX == 1 && this.initBoard[posX+2][posY] == 0 &&  (this.initBoard[posX+1][posY] == 0)){
                         returnValues.push([posX+2,posY]);
                     }
-                    return returnValues;
+                    return this.checkForBlock(posX,posY,returnValues);
                     break;
             case 11:
                 //also add functionality for taking
@@ -788,7 +828,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
             break;
             case 12:
                 //also add functionality for taking
@@ -848,7 +888,7 @@ let board = {
                         break;
                     }
                 }
-                return returnValues;
+                return this.checkForBlock(posX,posY,returnValues);
                 break;
         }
     },
