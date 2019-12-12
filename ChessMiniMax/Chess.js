@@ -76,7 +76,7 @@ let board = {
                 for(var j=0;j<8;j++){
                     var temp = this.initBoard[i][j];
                     if(temp != 0 && temp < 7){
-                        var positions = this.getValidPositions(temp,i,j,false);
+                        var positions = this.getValidPositions(temp,i,j,false,1);
                         for(var t=0;t<positions.length;t++){
                             if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
                                 attackingPieces.push([temp,i,j]);
@@ -101,7 +101,7 @@ let board = {
                 for(var j=0;j<8;j++){
                     var temp = this.initBoard[i][j];
                     if(temp != 0 && temp > 6){
-                        var positions = this.getValidPositions(temp,i,j,false);
+                        var positions = this.getValidPositions(temp,i,j,false,1);
                         for(var t=0;t<positions.length;t++){
                             if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
                                 attackingPieces.push([temp,i,j]);
@@ -114,13 +114,12 @@ let board = {
         return attackingPieces;
     },
     //there is a better method
-    checkForBlock: function(poX,poY,allPositions){
-        var returnValue = [];
+    checkForBlock: function(poX,poY,allPositions,altermove){
 
         //check if new move creates check
         var kingValue;
         var kingpos = [];
-        if(this.move % 2 == 0){
+        if(this.move + altermove % 2 == 0){
             kingValue = 8;
         }else{
             kingValue = 2;
@@ -136,25 +135,84 @@ let board = {
         }
 
         var kingvector;
-        
-        if (Math.abs(kingpos[0] - poX) == Math.abs(kingpos[1] - poY) || (kingpos[0] - poX)*(kingpos[1] - poY) == 0){
-            kingvector = [(kingpos[0] - poX)/Math.abs(kingpos[0] - poX),(kingpos[1] - poY)/Math.abs(kingpos[1] - poY)];
+        //check for valid vector from king to piece and normalize it to single units
+        if (Math.abs(poX - kingpos[0]) == Math.abs(poY - kingpos[1]) || (poX - kingpos[0])*(poY - kingpos[1]) == 0){
+
+            //prevent divide by zero
+            if(kingpos[0] - poX == 0){
+                kingvector = [0,(poY - kingpos[1])/Math.abs(poY - kingpos[1])];
+            }else if(poY - kingpos[1] == 0){
+                kingvector = [(poX - kingpos[0])/Math.abs(poX - kingpos[0]),0];
+            }else{
+                kingvector = [(poX - kingpos[0])/Math.abs(poX - kingpos[0]),(poY - kingpos[1])/Math.abs(poY - kingpos[1])];
+            }
+
+        }else return allPositions;
+
+        //create order to check based on vector given
+        var order;
+        if(this.move + altermove % 2 == 1){
+            if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 1){
+                order = [this.initBoard[poX][poY],[11,12]];
+            }else if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 2){
+                order = [this.initBoard[poX][poY],[11,7]];
+            }else{
+                console.log("Failed Logic for vector");
+            }
+        }else{
+            if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 1){
+                order = [this.initBoard[poX][poY],[5,6]];
+            }else if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 2){
+                order = [this.initBoard[poX][poY],[5,1]];
+            }else{
+                console.log("Failed Logic for vector");
+            }
         }
 
+        //check if the order (king, your piece, opponents attacking piece) exists
+        var i = kingpos[0];
+        var j = kingpos[1];
+        var first = false;
+        while(i>=0 && j>=0 && i<8 && j<8){
+            i += kingvector[0];
+            j += kingvector[1];
+            if(this.initBoard[i][j] != 0){
+                if(!first && order[0] == this.initBoard[i][j]){
+                    first =true;
+                }else return allPositions;
+
+                if(first && (order[1][0] == this.initBoard[i][j] || order[1][1] == this.initBoard[i][j])){
+                    break;
+                }else return allPositions;
+            }
+        }
+
+        //entering this area means piece is blocking
+        if(board.move % 2 == 0 ){
+            console.log(kingvector);
+        }
+        var returnValue = [];
+        //check if there exists positions that continue to block using kingvector
         for(var i=0;i<allPositions.length;i++){
-            var tempBoard = clone(this);
-
-            //run move
-            tempBoard.initBoard[allPositions[i][0]][allPositions[i][1]] = tempBoard.initBoard[poX][poY];
-            tempBoard.initBoard[poX][poY] = 0;
-
-            
-
+            //find some scalar value for the kingvector to give the new position
+            if((allPositions[i][0] - kingpos[0]) == 0){
+                if(0 == kingvector[0]){
+                    returnValue.push(allPositions[i]);
+                }
+            }else if((allPositions[i][1] - kingpos[1]) == 0){
+                if(0 == kingvector[1]){
+                    returnValue.push(allPositions[i]);
+                }
+            }else{
+                if((allPositions[i][0] - kingpos[0])/kingvector[0] == (allPositions[i][1] - kingpos[1])/kingvector[1]){
+                    returnValue.push(allPositions[i]);
+                }
+            }
         }
         return returnValue;
     },
     //all piece logic for positions
-    getValidPositions: function(piece,posX,posY,attack){
+    getValidPositions: function(piece,posX,posY,attack,altermove){
 
         var returnValues = [];
         switch(piece){
@@ -227,7 +285,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                 break;
             case 2:
                 //get possible movement positions 
@@ -269,7 +327,7 @@ let board = {
                             
                             //king preventing inf loop king attack area
                             if(temp !=8){
-                                tempPositions = this.getValidPositions(temp,f,t,true);
+                                tempPositions = this.getValidPositions(temp,f,t,true,0);
                             }else{
                                 tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
                             }
@@ -289,7 +347,7 @@ let board = {
                         }
                     }
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                return returnValues;
                 break;
             case 3:
                 //horse movement is a thing of beauty
@@ -312,7 +370,7 @@ let board = {
                         }
                     }
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                 break;
             case 4:
                 if(posX-1 >= 0 && this.initBoard[posX-1][posY] == 0){
@@ -327,7 +385,7 @@ let board = {
                 if(posX == 6 && (this.initBoard[posX-2][posY] == 0) && (this.initBoard[posX-1][posY] == 0)){
                     returnValues.push([posX-2,posY]);
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                 break;
             case 5:
                 //also add functionality for taking
@@ -455,7 +513,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
             break;
             case 6:
                 //also add functionality for taking
@@ -515,7 +573,7 @@ let board = {
                         break;
                     }
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                 break;
             case 7:
                 var i =posX+1,j=posY+1;
@@ -586,7 +644,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                 break;
             case 8:
                 //get possible movement positions 
@@ -640,7 +698,7 @@ let board = {
 
                             //king attack area preventing inf loop
                             if(temp !=2){
-                                tempPositions = this.getValidPositions(temp,f,t,true);
+                                tempPositions = this.getValidPositions(temp,f,t,true,0);
                             }else{
                                 tempPositions = [[f+1,t],[f+1,t+1],[f,t+1],[f-1,t],[f-1,t+1],[f-1,t-1],[f,t-1],[f+1,t-1]];
                             }
@@ -662,7 +720,7 @@ let board = {
                         }
                     }
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                return returnValues;
                 break;
             case 9:
                     //horse movement is a thing of beauty
@@ -685,7 +743,7 @@ let board = {
                             }
                         }
                     }
-                    return this.checkForBlock(posX,posY,returnValues);
+                    if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                     break;
             case 10:
                     if(posX+1 < 8 && this.initBoard[posX+1][posY] == 0){
@@ -700,7 +758,7 @@ let board = {
                     if(posX == 1 && this.initBoard[posX+2][posY] == 0 &&  (this.initBoard[posX+1][posY] == 0)){
                         returnValues.push([posX+2,posY]);
                     }
-                    return this.checkForBlock(posX,posY,returnValues);
+                    if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                     break;
             case 11:
                 //also add functionality for taking
@@ -828,7 +886,7 @@ let board = {
                     i--;
                     j++;
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
             break;
             case 12:
                 //also add functionality for taking
@@ -888,7 +946,7 @@ let board = {
                         break;
                     }
                 }
-                return this.checkForBlock(posX,posY,returnValues);
+                if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
                 break;
         }
     },
@@ -915,7 +973,7 @@ let board = {
             for(var i = 0;i<8;i++){
                 for(var j = 0;j<8;j++){
                     if(currBoard.initBoard[i][j]<7 && currBoard.initBoard[i][j] != 0){
-                        var positions = currBoard.getValidPositions(board.initBoard[i][j],i,j,false);
+                        var positions = currBoard.getValidPositions(board.initBoard[i][j],i,j,false,0);
                         for(var g=0;g<positions.length;g++){
 
                             //prevent modification of local function board enabling reuse for multiple moves.
@@ -966,7 +1024,7 @@ let board = {
                 for(var x=0;x<8;x++){
                     for(var y=0;y<8;y++){
                         if(currBoard.initBoard[x][y] < 7 && currBoard.initBoard[x][y] != 0){
-                            var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false);
+                            var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false,0);
                             for(var e=0;e<allPositions.length;e++){
                                 if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
                                     
@@ -1003,7 +1061,7 @@ let board = {
             }
 
             //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-            var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+            var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false,0);
             if(kingPositions.length == 0 && blockingPositions == 0){
                 console.log("checkmate");
                 return -1000;
@@ -1115,7 +1173,7 @@ let board = {
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
                         if(currBoard.initBoard[i][j]>6){
-                            var positions = currBoard.getValidPositions(currBoard.initBoard[i][j],i,j,false);
+                            var positions = currBoard.getValidPositions(currBoard.initBoard[i][j],i,j,false,0);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
@@ -1165,7 +1223,7 @@ let board = {
                     for(var x=0;x<8;x++){
                         for(var y=0;y<8;y++){
                             if(currBoard.initBoard[x][y] > 6){
-                                var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false);
+                                var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false,0);
                                 for(var e=0;e<allPositions.length;e++){
                                     if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
                                         
@@ -1201,7 +1259,7 @@ let board = {
                 }
 
                 //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-                var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false,0);
                 if(kingPositions.length == 0 && blockingPositions == 0){
                     console.log("checkmate");
                     return 1000;
@@ -1246,7 +1304,7 @@ let board = {
                 for(var i = 0;i<8;i++){
                     for(var j = 0;j<8;j++){
                         if(currBoard.initBoard[i][j]<7 && currBoard.initBoard[i][j] != 0){
-                            var positions = currBoard.getValidPositions(currBoard.initBoard[i][j],i,j,false);
+                            var positions = currBoard.getValidPositions(currBoard.initBoard[i][j],i,j,false,0);
                             for(var g=0;g<positions.length;g++){
 
                                 //prevent modification of local function board enabling reuse for multiple moves.
@@ -1296,7 +1354,7 @@ let board = {
                     for(var x=0;x<8;x++){
                         for(var y=0;y<8;y++){
                             if(currBoard.initBoard[x][y] < 7 && currBoard.initBoard[x][y] != 0){
-                                var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false);
+                                var allPositions = currBoard.getValidPositions(currBoard.initBoard[x][y],x,y,false,0);
                                 for(var e=0;e<allPositions.length;e++){
                                     if(((kingpos[0]-allPositions[e][0])/(kingpos[0]-attackingPieces[0][1])) == ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) >= 0 && ((kingpos[1]-allPositions[e][1])/(kingpos[1]-attackingPieces[0][2])) <= 1){
                                         
@@ -1332,7 +1390,7 @@ let board = {
                 }
 
                 //include movements for the king if king has no valid positions and there are no blocking positions it is checkmate
-                var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false);
+                var kingPositions = currBoard.getValidPositions(currBoard.initBoard[kingpos[0]][kingpos[1]],kingpos[0],kingpos[1],false,0);
                 if(kingPositions.length == 0 && blockingPositions == 0){
                     console.log("checkmate");
                     return -1000;
@@ -1407,7 +1465,7 @@ $(document).mousedown(function(event){
         if(board.initBoard[coY][coX] == 0){
             return;
         }else{
-            allPositions = board.getValidPositions(board.initBoard[coY][coX],coY,coX,false);
+            allPositions = board.getValidPositions(board.initBoard[coY][coX],coY,coX,false,0);
         }
     }else{
         return;
