@@ -76,7 +76,7 @@ let board = {
                 for(var j=0;j<8;j++){
                     var temp = this.initBoard[i][j];
                     if(temp != 0 && temp < 7){
-                        var positions = this.getValidPositions(temp,i,j,false,1);
+                        var positions = this.getValidPositions(temp,i,j,true,1);
                         for(var t=0;t<positions.length;t++){
                             if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
                                 attackingPieces.push([temp,i,j]);
@@ -101,7 +101,7 @@ let board = {
                 for(var j=0;j<8;j++){
                     var temp = this.initBoard[i][j];
                     if(temp != 0 && temp > 6){
-                        var positions = this.getValidPositions(temp,i,j,false,1);
+                        var positions = this.getValidPositions(temp,i,j,true,1);
                         for(var t=0;t<positions.length;t++){
                             if(positions[t][0] == kingpos[0] && positions[t][1] == kingpos[1]){
                                 attackingPieces.push([temp,i,j]);
@@ -133,7 +133,6 @@ let board = {
                 }
             }
         }
-
         var kingvector;
         //check for valid vector from king to piece and normalize it to single units
         if (Math.abs(poX - kingpos[0]) == Math.abs(poY - kingpos[1]) || (poX - kingpos[0])*(poY - kingpos[1]) == 0){
@@ -147,7 +146,9 @@ let board = {
                 kingvector = [(poX - kingpos[0])/Math.abs(poX - kingpos[0]),(poY - kingpos[1])/Math.abs(poY - kingpos[1])];
             }
 
-        }else return allPositions;
+        }else{
+            return allPositions;
+        }
 
         //create order to check based on vector given
         var order;
@@ -168,7 +169,7 @@ let board = {
                 console.log("Failed Logic for vector");
             }
         }
-
+        console.log(order);
         //check if the order (king, your piece, opponents attacking piece) exists
         var i = kingpos[0];
         var j = kingpos[1];
@@ -177,20 +178,24 @@ let board = {
             i += kingvector[0];
             j += kingvector[1];
             if(this.initBoard[i][j] != 0){
+                console.log(this.initBoard[i][j]);
                 if(!first && order[0] == this.initBoard[i][j]){
-                    first =true;
-                }else return allPositions;
-
+                    console.log(this.initBoard[i][j],i,j);
+                    first = true;
+                }else{
+                    return allPositions;
+                }
+                //find here
                 if(first && (order[1][0] == this.initBoard[i][j] || order[1][1] == this.initBoard[i][j])){
                     break;
-                }else return allPositions;
+                }else{ 
+                    return allPositions;
+                }
             }
         }
 
         //entering this area means piece is blocking
-        if(board.move % 2 == 0 ){
-            console.log(kingvector);
-        }
+        console.log(order);
         var returnValue = [];
         //check if there exists positions that continue to block using kingvector
         for(var i=0;i<allPositions.length;i++){
@@ -1585,7 +1590,7 @@ $(document).mousedown(function(event){
         board.move++;
         console.log(board.initBoard);
         $(mouseToCoordinates(currEvent.pageX,currEvent.pageY)).html(savSelected);
-        board.aiMoveBlack();
+        //board.aiMoveBlack();
 
         //automatic promotion to queen
         var prom = false;
