@@ -153,7 +153,7 @@ let board = {
 
         //create order to check based on vector given
         var order;
-        if((this.move + altermove) % 2 == 1){
+        if((this.move + altermove) % 2 == 0){
             if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 1){
                 order = [this.initBoard[poX][poY],[5,6]];
             }else if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 2){
@@ -997,7 +997,7 @@ let board = {
                             tempBoard.move++;
 
                             //evaluate the tree descent value
-                            var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction);
+                            var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction,savPos[0]);
                             if( evalValue > savPos[0]){
                                 savPos[0] = evalValue;
                                 savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
@@ -1051,7 +1051,7 @@ let board = {
                                     tempBoard.move++;
 
                                     //evaluate the tree descent value
-                                    var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction);
+                                    var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction,savPos[0]);
                                     if( evalValue > savPos[0]){
                                         savPos[0] = evalValue;
                                         savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
@@ -1089,7 +1089,7 @@ let board = {
                     tempBoard.move++;
 
                     //evaluate the tree descent value
-                    var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction);
+                    var evalValue = board.recursiveTreeDescent(tempBoard,movePrediction,savPos[0]);
                     if( evalValue > savPos[0]){
                         savPos[0] = evalValue;
                         savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
@@ -1115,7 +1115,7 @@ let board = {
         board.intializeBoard();
         board.move++;
     },
-    recursiveTreeDescent: function(currBoard,depth){
+    recursiveTreeDescent: function(currBoard,depth,currValue){
         depth--;
         calc++;
         //console.log(calc);
@@ -1198,8 +1198,11 @@ let board = {
                                 tempBoard.move++;
 
                                 //evaluate the tree descent value
-                                var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                                var evalValue = board.recursiveTreeDescent(tempBoard,depth,savPos[0]);
                                 if( evalValue < savPos[0]){
+                                    if(evalValue<=currValue){
+                                        return evalValue;
+                                    }
                                     savPos[0] = evalValue;
                                     savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
                                     savPos[2] = [positions[g][0],positions[g][1]];
@@ -1251,8 +1254,11 @@ let board = {
                                         tempBoard.move++;
 
                                         //evaluate the tree descent value
-                                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                                        var evalValue = board.recursiveTreeDescent(tempBoard,depth,savPos[0]);
                                         if( evalValue < savPos[0]){
+                                            if(evalValue<=currValue){
+                                                return evalValue;
+                                            }
                                             savPos[0] = evalValue;
                                             savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
                                             savPos[2] = [allPositions[e][0],allPositions[e][1]];
@@ -1288,8 +1294,11 @@ let board = {
                         tempBoard.move++;
 
                         //evaluate the tree descent value
-                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                        var evalValue = board.recursiveTreeDescent(tempBoard,depth,savPos[0]);
                         if( evalValue > savPos[0]){
+                            if(evalValue >= currValue){
+                                return evalValue;
+                            }
                             savPos[0] = evalValue;
                             savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
                             savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
@@ -1329,8 +1338,11 @@ let board = {
                                 tempBoard.move++;
 
                                 //evaluate the tree descent value
-                                var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                                var evalValue = board.recursiveTreeDescent(tempBoard,depth,savPos[0]);
                                 if( evalValue > savPos[0]){
+                                    if(evalValue>=currValue){
+                                        return evalValue;
+                                    }
                                     savPos[0] = evalValue;
                                     savPos[1] = tempBoard.initBoard[positions[g][0]][positions[g][1]];
                                     savPos[2] = [positions[g][0],positions[g][1]];
@@ -1382,8 +1394,11 @@ let board = {
                                         tempBoard.move++;
 
                                         //evaluate the tree descent value
-                                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                                        var evalValue = board.recursiveTreeDescent(tempBoard,depth,savPos[0]);
                                         if( evalValue > savPos[0]){
+                                            if(evalValue>=currValue){
+                                                return evalValue;
+                                            }
                                             savPos[0] = evalValue;
                                             savPos[1] = tempBoard.initBoard[allPositions[e][0]][allPositions[e][1]];
                                             savPos[2] = [allPositions[e][0],allPositions[e][1]];
@@ -1419,8 +1434,11 @@ let board = {
                         tempBoard.move++;
 
                         //evaluate the tree descent value
-                        var evalValue = board.recursiveTreeDescent(tempBoard,depth);
+                        var evalValue = board.recursiveTreeDescent(tempBoard,depth,savPos[0]);
                         if( evalValue > savPos[0]){
+                            if(evalValue>=currValue){
+                                return evalValue;
+                            }
                             savPos[0] = evalValue;
                             savPos[1] = tempBoard.initBoard[kingPositions[e][0]][kingPositions[e][1]];
                             savPos[2] = [kingPositions[e][0],kingPositions[e][1]];
