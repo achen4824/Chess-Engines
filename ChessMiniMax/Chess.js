@@ -119,7 +119,7 @@ let board = {
         //check if new move creates check
         var kingValue;
         var kingpos = [];
-        if(this.move + altermove % 2 == 0){
+        if((this.move + altermove) % 2 == 0){
             kingValue = 8;
         }else{
             kingValue = 2;
@@ -133,6 +133,7 @@ let board = {
                 }
             }
         }
+        //console.log(kingValue,altermove,this.move);
         var kingvector;
         //check for valid vector from king to piece and normalize it to single units
         if (Math.abs(poX - kingpos[0]) == Math.abs(poY - kingpos[1]) || (poX - kingpos[0])*(poY - kingpos[1]) == 0){
@@ -152,15 +153,7 @@ let board = {
 
         //create order to check based on vector given
         var order;
-        if(this.move + altermove % 2 == 1){
-            if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 1){
-                order = [this.initBoard[poX][poY],[11,12]];
-            }else if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 2){
-                order = [this.initBoard[poX][poY],[11,7]];
-            }else{
-                console.log("Failed Logic for vector");
-            }
-        }else{
+        if((this.move + altermove) % 2 == 1){
             if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 1){
                 order = [this.initBoard[poX][poY],[5,6]];
             }else if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 2){
@@ -168,34 +161,42 @@ let board = {
             }else{
                 console.log("Failed Logic for vector");
             }
+        }else{
+            if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 1){
+                order = [this.initBoard[poX][poY],[11,12]];
+            }else if(Math.abs(kingvector[0])+Math.abs(kingvector[1]) == 2){
+                order = [this.initBoard[poX][poY],[7,11]];
+            }else{
+                console.log("Failed Logic for vector");
+            }
         }
-        console.log(order);
+        //console.log(order);
         //check if the order (king, your piece, opponents attacking piece) exists
-        var i = kingpos[0];
-        var j = kingpos[1];
+        var i = kingpos[0] + kingvector[0];
+        var j = kingpos[1] + kingvector[1];
         var first = false;
-        while(i>=0 && j>=0 && i<8 && j<8){
-            i += kingvector[0];
-            j += kingvector[1];
+        var orderIsCorrect = false;
+        do{
+            //console.log(kingvector[0],kingvector[1],i,j,this.initBoard[i][j]);
             if(this.initBoard[i][j] != 0){
-                console.log(this.initBoard[i][j]);
                 if(!first && order[0] == this.initBoard[i][j]){
-                    console.log(this.initBoard[i][j],i,j);
                     first = true;
-                }else{
-                    return allPositions;
-                }
-                //find here
-                if(first && (order[1][0] == this.initBoard[i][j] || order[1][1] == this.initBoard[i][j])){
+                }else if(first && (order[1][0] == this.initBoard[i][j] || order[1][1] == this.initBoard[i][j])){
+                    orderIsCorrect = true;
                     break;
-                }else{ 
+                }else {
                     return allPositions;
                 }
             }
-        }
+            i += kingvector[0];
+            j += kingvector[1];
+        }while(i>=0 && j>=0 && i<8 && j<8);
 
+        if(!orderIsCorrect){
+            return allPositions;
+        }
+        
         //entering this area means piece is blocking
-        console.log(order);
         var returnValue = [];
         //check if there exists positions that continue to block using kingvector
         for(var i=0;i<allPositions.length;i++){
@@ -214,6 +215,7 @@ let board = {
                 }
             }
         }
+
         return returnValue;
     },
     //all piece logic for positions
@@ -1147,6 +1149,7 @@ let board = {
                         sum += 3;
                         break;
                     case 8:
+                        console.log(currBoard.initBoard);
                         console.log("failed chess logic");
                         break;
                     case 9:
@@ -1590,7 +1593,7 @@ $(document).mousedown(function(event){
         board.move++;
         console.log(board.initBoard);
         $(mouseToCoordinates(currEvent.pageX,currEvent.pageY)).html(savSelected);
-        //board.aiMoveBlack();
+        board.aiMoveBlack();
 
         //automatic promotion to queen
         var prom = false;
