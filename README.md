@@ -16,7 +16,7 @@ A side project which was creating a AI for a turn based game *(chess)* using the
 * **move** - Contains the board's current move count used to keep track of current player's move. This is necessary for minimax as simulating future moves means keeping track of both sides of the board.
 * **killList** - Contains pieces currently removed from the board. Used to determine the amount of points each player has.
 
-## Board Methods - Add Images
+## Board Methods
 
 Every method is called in a certain order for each move. The first method is:
 * **checkForCheck** - This method ensures that the king is not currently in check which restricts specific pieces from being played. If the king is in check the next method is called.
@@ -49,6 +49,33 @@ If t is the same then the point lies on the line. Then starting at the king and 
       j += kingvector[1];
   }while(i>=0 && j>=0 && i<8 && j<8);
 ```
+* **getValidPositions** - Returns a piece's valid positions. This is the main part of the code as all the valid positions are run through recursively at least once with the highest score being used.
+```javascript
+  //horse movement is a thing of beauty
+  var m=2;
+  var n=1;
+  for(var k=0;k<8;k++){
+      if(k != 4){
+          if(k%2==0){
+              m *= -1;
+          }else{
+              n *= -1;
+          }
+      }else{
+          n=2;
+          m=1;
+      }
+      if(posX+m < 8 && posX+m >= 0 && posY+n<8 && posY+n >= 0){
+          if(this.initBoard[posX+m][posY+n] == 0 || this.initBoard[posX+m][posY+n] > 6){
+              returnValues.push([posX+m,posY+n]);
+          }
+      }
+  }
+  if(!attack){return this.checkForBlock(posX,posY,returnValues,altermove)}else return returnValues;
+  break;
+```
+
+* **recursiveTreeDescent** - This is the main logic for the chess engine. Imagining the chess board as a tree with all possible states up to 4 moves. We evaluate and take the move to the best possible state. Implementing alpha-beta pruning significantly reduced the computational load.
 
 ### Javascript Object Duplication - Fix
 The way javascript passes objects around are solely by reference as such a work around was created. It being put here as a future example. 
